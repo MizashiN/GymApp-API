@@ -3,10 +3,12 @@ from funcs import funcs
 
 app = Flask(__name__)
 
+funcs_instance = funcs()
+
 class API(funcs):
     @app.route('/motivationmessage', methods=['GET'])
     def get_message():
-        response = funcs.GetMotivationMessage()
+        response = funcs_instance.GetMotivationMessage()
         
         author = response.get("author", "Unknown")
         quote = response.get("quote", "No quote available")

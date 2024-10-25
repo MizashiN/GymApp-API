@@ -7,7 +7,8 @@ class dataclass:
     title: str
     price: str
     image_src: str
-
+class brands:
+    brands = ["MaxTitanium", "Adaptogen"]
 class defaultsets:
     def MaxTitaniumSet(urls):
         product_list = []  # Inicializa a lista de produtos
@@ -30,6 +31,9 @@ class defaultsets:
                 price = product_info.find("div", class_="aud-font-semibold")
                 image = product_info.find("img", class_="product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] product-card__img--first lg:aud-transition-all lg:aud-duration-300 aud-object-contain aud-w-full")
 
+                if not image:
+                    image = product_info.find("img", class_="product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] aud-object-contain aud-w-full")
+                
                 if title and price and image:
                     title_text = title.get_text(strip=True)
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
@@ -38,8 +42,8 @@ class defaultsets:
                     product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
         
         result = {
-            "totalMaxTitanium": len(product_list),
-            "productsMaxTitanium": product_list
+            f"total{brands.brands}": len(product_list),
+            f"products{brands.brands}": product_list
         }
         
         return result
@@ -74,14 +78,16 @@ class defaultsets:
                     product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
                     
         result = {
-            "totalAdaptogen": len(product_list),
-            "productsAdaptogen": product_list
+            f"total{brands.brands}": len(product_list),
+            f"products{brands.brands}": product_list
         }
         
         return result
     
     
 class funcs:
+    product_list = []
+    
     def MaxTitanium(category, subcategory):
         if category == "proteinas" and subcategory == "":
             urls = [
@@ -95,7 +101,7 @@ class funcs:
 
         elif category and subcategory == "":
             urls = [
-                f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-3={category}"
+                f"https://www.maxtitanium.com.br/s?q={category}"
             ]
             product_list = defaultsets.MaxTitaniumSet(urls)
 
@@ -118,23 +124,22 @@ class funcs:
         return product_list
     
     def proteins():
-        product_list = []  # Inicializa a lista de produtos
+        product_list = []  # Reinicializa a lista para evitar duplicação
+        total = 0
+        
+        for brand in brand.brands:
+            brandFunc = getattr(funcs, brand, None)
 
-        # Obtém produtos da MaxTitanium
-        max_titanium_products = funcs.MaxTitanium("proteinas", "")
-        product_list.append(max_titanium_products)  # Adiciona os produtos da MaxTitanium à lista
+            product = brandFunc("proteinas","")
+            product_count = product[f"total{brand}"]
 
-        # Obtém produtos de Adaptogen
-        adaptogen_products = funcs.Adaptogen("proteinas", "")
-        product_list.append(adaptogen_products)
 
-        # Calcular o total de produtos de cada marca
-        total_max_titanium = len(max_titanium_products["productsMaxTitanium"])
-        total_adaptogen = len(adaptogen_products["productsAdaptogen"])
+            product_list.append(product)
+            total += product_count
 
         # Criar o dicionário com os produtos
         result = {
-            "totalProducts": total_max_titanium + total_adaptogen,  # Soma dos totais de cada marca
+            "totalProducts": total,  # Soma dos totais de cada marca
             "products": product_list
         }
 
@@ -151,3 +156,5 @@ class funcs:
         response = requests.get(url, headers=headers)
 
         return response.json()
+    
+funcs.proteins()
