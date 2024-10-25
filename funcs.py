@@ -25,7 +25,6 @@ class defaultsets:
             # Encontra todos os artigos de produto na página
             product_items = soup.find_all('article', class_='product-card aud-flex aud-flex-col aud-h-full aud-relative aud-duration-300 aud-border-transparent aud-group hoverWishlist hoverZoom hoverShadow')
 
-            # Itera por cada item encontrado
             for product_info in product_items:
                 title = product_info.find("h3", class_="product-card__title aud-text-sm")
                 price = product_info.find("div", class_="aud-font-semibold")
@@ -94,9 +93,9 @@ class funcs:
             ]
             product_list = defaultsets.MaxTitaniumSet(urls)
 
-        elif category == "proteinas" and subcategory:
+        elif category and subcategory == "":
             urls = [
-                f"https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3={subcategory}"
+                f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-3={category}"
             ]
             product_list = defaultsets.MaxTitaniumSet(urls)
 
