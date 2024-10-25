@@ -18,8 +18,9 @@ class API(funcs):
     @app.route('/maxtitanium', methods=['GET'])
     def get_supp_MaxTitanium():
         
+        
         category = request.args.get('category')
-        subcategory = request.args.get('subcategory')
+        subcategory = request.args.get('subcategory', "")
         
         response = funcs.MaxTitanium(category, subcategory)
 
