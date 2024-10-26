@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import requests
 
 @dataclass
-class dataclass:
+class ProductData:
     title: str
     price: str
     image_src: str
@@ -42,7 +42,7 @@ class defaultsets:
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
                     image_src = image.get('src')
                     
-                    self.product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
+                    self.product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
         
         result = {
             f"total": len(self.product_list),
@@ -54,28 +54,27 @@ class defaultsets:
     def AdaptogenSet(self, urls): 
         for url in urls:
             res = requests.get(url)
-
-            # Verifica se a requisição foi bem-sucedida
+                
             if res.status_code != 200:
+                continue  # Se falhar, pula para a próxima URL
+            # Analisa o conteúdo HTML retornado
+            soup = BeautifulSoup(res.content, "html.parser")
 
-                # Analisa o conteúdo HTML retornado
-                soup = BeautifulSoup(res.content, "html.parser")
+            # Encontra todos os artigos de produto na página
+            product_items = soup.find_all('a', class_='woocommerce-LoopProduct-link woocommerce-loop-product__link')
 
-                    # Encontra todos os artigos de produto na página
-                product_items = soup.find_all('a', class_='woocommerce-LoopProduct-link woocommerce-loop-product__link')
+                # Itera por cada item encontrado
+            for product_info in product_items:
+                title = product_info.find("h2", class_="woocommerce-loop-product__title")
+                price = product_info.find("p")
+                image = product_info.find("img")
 
-                    # Itera por cada item encontrado
-                for product_info in product_items:
-                    title = product_info.find("h2", class_="woocommerce-loop-product__title")
-                    price = product_info.find("p")
-                    image = product_info.find("img")
-
-                    if title and price and image:
-                        title_text = title.get_text(strip=True)
-                        price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
-                        image_src = image.get('src')
+                if title and price and image:
+                    title_text = title.get_text(strip=True)
+                    price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
+                    image_src = image.get('src')
                             
-                        self.product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
+                    self.product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
                         
         result = {
             f"total": len(self.product_list),
