@@ -10,8 +10,11 @@ class dataclass:
 class brands:
     brands = ["MaxTitanium", "Adaptogen"]
 class defaultsets:
-    def MaxTitaniumSet(urls):
-        product_list = []  # Inicializa a lista de produtos
+    def __init__(self):
+        self.product_list = []
+        pass
+    def MaxTitaniumSet(self, urls):
+
         
         for url in urls:
             res = requests.get(url)
@@ -23,7 +26,7 @@ class defaultsets:
             # Analisa o conteúdo HTML retornado
             soup = BeautifulSoup(res.content, "html.parser")
 
-            # Encontra todos os artigos de produto na página
+            # Encontra  todos os artigos de produto na página
             product_items = soup.find_all('article', class_='product-card aud-flex aud-flex-col aud-h-full aud-relative aud-duration-300 aud-border-transparent aud-group hoverWishlist hoverZoom hoverShadow')
 
             for product_info in product_items:
@@ -39,96 +42,105 @@ class defaultsets:
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
                     image_src = image.get('src')
                     
-                    product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
+                    self.product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
         
         result = {
-            f"total": len(product_list),
-            f"products": product_list
+            f"total": len(self.product_list),
+            f"products": self.product_list
         }
         
         return result
     
-    def AdaptogenSet(urls):
-        product_list = [] 
-        
+    def AdaptogenSet(self, urls): 
         for url in urls:
             res = requests.get(url)
 
             # Verifica se a requisição foi bem-sucedida
             if res.status_code != 200:
-                continue  # Se falhar, pula para a próxima URL
 
                 # Analisa o conteúdo HTML retornado
-            soup = BeautifulSoup(res.content, "html.parser")
+                soup = BeautifulSoup(res.content, "html.parser")
 
-                # Encontra todos os artigos de produto na página
-            product_items = soup.find_all('a', class_='woocommerce-LoopProduct-link woocommerce-loop-product__link')
+                    # Encontra todos os artigos de produto na página
+                product_items = soup.find_all('a', class_='woocommerce-LoopProduct-link woocommerce-loop-product__link')
 
-                # Itera por cada item encontrado
-            for product_info in product_items:
-                title = product_info.find("h2", class_="woocommerce-loop-product__title")
-                price = product_info.find("p")
-                image = product_info.find("img")
+                    # Itera por cada item encontrado
+                for product_info in product_items:
+                    title = product_info.find("h2", class_="woocommerce-loop-product__title")
+                    price = product_info.find("p")
+                    image = product_info.find("img")
 
-                if title and price and image:
-                    title_text = title.get_text(strip=True)
-                    price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
-                    image_src = image.get('src')
+                    if title and price and image:
+                        title_text = title.get_text(strip=True)
+                        price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
+                        image_src = image.get('src')
+                            
+                        self.product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
                         
-                    product_list.append(dataclass(title=title_text, price=price_text, image_src=image_src))
-                    
         result = {
-            f"total": len(product_list),
-            f"products": product_list
+            f"total": len(self.product_list),
+            f"products": self.product_list
         }
         
         return result
     
     
-class funcs:
-    product_list = []
+class Products(defaultsets):
+    def __init__(self):
+        super().__init__()
+        self.urls = []
+        pass
     
-    def MaxTitanium(category, subcategory):
-        if category == "proteinas" and subcategory == "":
-            urls = [
+    #This Website has javascript buttons
+    def getMaxTitanium(self, category, subcategory=""):
+        if category == "proteinas" and not subcategory:
+            self.urls = [
                 "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=concentrada",
                 "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=3w",
                 "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=blend-de-proteinas",
                 "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=proteina-vegetal",
                 "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=isolada"
             ]
-            product_list = defaultsets.MaxTitaniumSet(urls)
-
-        elif category and subcategory == "":
-            urls = [
-                f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2={category}"
+        
+        elif category == "creatina" and not subcategory:
+            self.urls = [
+                "https://www.maxtitanium.com.br/produtos/aminoacidos/creatina"
             ]
-            product_list = defaultsets.MaxTitaniumSet(urls)
 
-        return product_list
+        elif category and not subcategory:
+            self.urls = [
+                f"https://www.maxtitanium.com.br/produtos/{category}",   
+                f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2={category}",
+                f"https://www.maxtitanium.com.br/s?q={category}"
+            ]
+            
+        
+        elif category and subcategory:
+            self.urls = [
+                f"https://www.maxtitanium.com.br/produtos/{category}?filter.category-1=produtos&filter.category-2={category}&filter.category-3={subcategory}"
+            ]
+            
+            
+        return super().MaxTitaniumSet(self.urls)
     
-    def Adaptogen(category, subcategory):
+    def getAdaptogen(self, category, subcategory=""):
         # URLs para a categoria de proteínas
         if category == "proteinas" and subcategory == "":
-            urls = [
+            self.urls = [
                 "https://adaptogen.com.br/proteinas/?orderby=popularity&paged=1&_sft_product_cat=proteinas"
-            ]
-            product_list = defaultsets.AdaptogenSet(urls)
-                        
+            ]                 
         elif category == "proteinas" and subcategory:
-            urls = [
+            self.urls = [
                 f"https://adaptogen.com.br/proteinas/?orderby=popularity&paged=1&_sft_product_cat={subcategory}"
             ]
-            product_list = defaultsets.AdaptogenSet(urls)
-
-        return product_list
+        return self.MaxTitaniumSet(self.urls)
     
-    def proteins():
+    def getProteins():
         product_list = []  # Reinicializa a lista para evitar duplicação
         total = 0
         
         for brand in brands.brands:
-            brandFunc = getattr(funcs, brand, None)
+            brandFunc = getattr(Products, brand, None)
 
             product = brandFunc("proteinas","")
             product_count = product[f"total{brand}"]
@@ -145,7 +157,7 @@ class funcs:
 
         return result  # Retorne o resultado
     
-    def GetMotivationMessage():
+    def getMotivationMessage():
         url = "https://inspirational-quote-generator.p.rapidapi.com/quoteGenerator"
 
         headers = {

@@ -1,14 +1,14 @@
 from flask import Flask, jsonify, request
-from funcs import funcs
+from funcs import Products
 
 app = Flask(__name__)
 
-funcs_instance = funcs()
+funcs_instance = Products()
 
-class API(funcs):
+class API():
     @app.route('/motivationmessage', methods=['GET'])
     def get_message():
-        response = funcs_instance.GetMotivationMessage()
+        response = funcs_instance.getMotivationMessage()
         
         author = response.get("author", "Unknown")
         quote = response.get("quote", "No quote available")
@@ -22,7 +22,7 @@ class API(funcs):
         category = request.args.get('category')
         subcategory = request.args.get('subcategory', "")
         
-        response = funcs.MaxTitanium(category, subcategory)
+        response = funcs_instance.getMaxTitanium(category, subcategory)
 
         return jsonify(response)
     @app.route('/adaptogen', methods=['GET'])
@@ -31,13 +31,13 @@ class API(funcs):
         category = request.args.get('category')
         subcategory = request.args.get('subcategory')
         
-        response = funcs.Adaptogen(category, subcategory)
+        response = funcs_instance.getAdaptogen(category, subcategory)
 
         return jsonify(response)
     @app.route('/proteins', methods=['GET'])
     def get_supp_proteins():
         
-        response = funcs.proteins()
+        response = funcs_instance.getProteins()
 
         return jsonify(response)
     
