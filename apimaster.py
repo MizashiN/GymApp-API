@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request
-from funcs import Products
+from product_scraper import *
+from generic_funcs import funcs
 
 app = Flask(__name__)
 
-funcs_instance = Products()
+funcs_instance = funcs()
 
 class API():
     @app.route('/motivationmessage', methods=['GET'])
@@ -22,24 +23,30 @@ class API():
         category = request.args.get('category')
         subcategory = request.args.get('subcategory', "")
         
-        response = funcs_instance.getMaxTitanium(category, subcategory)
+        response = MaxTitanium()
+        result = response.set(category, subcategory)
 
-        return jsonify(response)
+        return jsonify(result)
     @app.route('/adaptogen', methods=['GET'])
     def get_supp_Adaptogen():
         
         category = request.args.get('category')
         subcategory = request.args.get('subcategory')
         
-        response = funcs_instance.getAdaptogen(category, subcategory)
+        response = Adaptogen()
+        result = response.set(category, subcategory)
 
-        return jsonify(response)
-    @app.route('/proteins', methods=['GET'])
+        return jsonify(result)
+    @app.route('/all', methods=['GET'])
     def get_supp_proteins():
         
-        response = funcs_instance.getProteins()
+        category = request.args.get('category')
+        subcategory = request.args.get('subcategory')
+        
+        response = All()
+        result = response.set(category, subcategory)
 
-        return jsonify(response)
+        return jsonify(result)
     
     
 if __name__ == '__main__':
