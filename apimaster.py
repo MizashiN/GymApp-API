@@ -27,6 +27,7 @@ class API():
         result = response.set(category, subcategory)
 
         return jsonify(result)
+    
     @app.route('/adaptogen', methods=['GET'])
     def get_supp_Adaptogen():
         
@@ -48,6 +49,12 @@ class API():
 
         return jsonify(result)
     
+    @app.route('/news', methods=['GET'])
+    def get_news():
+        
+        response = funcs_instance.getNews()
+        
+        return jsonify(response)
     
 if __name__ == '__main__':
     app.run(debug=True)
