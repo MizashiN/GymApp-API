@@ -56,5 +56,13 @@ class API():
         
         return jsonify(response)
     
+    @app.route('/getImgIcon', methods=['POST'])
+    def get_imgicon():
+        
+        file = request.args.get('file')
+        response = funcs_instance.getIconImg(file)
+        
+        return jsonify(response)
+    
 if __name__ == '__main__':
     app.run(debug=True)

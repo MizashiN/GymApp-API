@@ -1,7 +1,6 @@
 import requests
 from PIL import Image, ImageDraw
-import os
-import json
+import io
 
 class funcs:
     def getMotivationMessage(self):
@@ -16,39 +15,33 @@ class funcs:
 
         return response.json()
     
-    def getIconImg(self, input_image_path):  
-        input_dir = input_image_path
-        output_dir ="C:\\Users\\Parafal\\Documents\\Output_Path"
+    def get_icon_img(self, input_image_path):  
+        input_image = Image.open(input_image_path).convert("RGB")
+        input_image_resized = input_image.resize((200, 200))
+        width, height = input_image_resized.size
+        mask = Image.new('L', (width, height), 0)
+        draw = ImageDraw.Draw(mask)
+        radius = 98
 
-
-        os.makedirs(output_dir, exist_ok=True)
+        circle_bbox = (width // 2 - radius, height // 2 - radius, width // 2 + radius, height // 2 + radius)
+        draw.ellipse(circle_bbox, fill=255)
         
-        for i, filename in enumerate(os.listdir(input_dir)):
-            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.webp')):
-                input_image = Image.open(os.path.join(input_dir, filename)).convert("RGB")
-                input_image_resized = input_image.resize((160, 160))
-                width, height = input_image_resized.size
-                mask = Image.new('L', (width, height), 0)
-                draw = ImageDraw.Draw(mask)
-                radius = 77
-                
-                circle_bbox = (width // 2 - radius, height // 2 - radius, width // 2 + radius, height // 2 + radius)
-                draw.ellipse(circle_bbox, fill=255)
-                
-                input_image_resized.putalpha(mask)
-                
+        input_image_resized.putalpha(mask)
 
-                output_name = f'{i}-ABOBORA.png'
+        # Converter a imagem para blob
+        image_blob = io.BytesIO()
+        input_image_resized.save(image_blob, format="PNG")
+        image_blob.seek(0)  # Voltar para o início do arquivo
 
-                input_image_resized.save(os.path.join(output_dir, output_name), "PNG") 
+        return image_blob.getvalue()
 
     def getNews(self):
-        url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q=powerlifting&api-key=ZILCSZHbyPDyAnFlhSTBc2ccXhIOf3KH"
+        url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q=health&api-key=ZILCSZHbyPDyAnFlhSTBc2ccXhIOf3KH"
         
         response = requests.get(url)
         data = response.json()
         
-        first_doc = data["response"]["docs"][0]
+        first_doc = data["response"]["docs"][4]
         
         title = first_doc["headline"]["main"]
         paragraph = first_doc["lead_paragraph"]
@@ -62,8 +55,3 @@ class funcs:
     
     # Convertendo o dicionário para JSON
         return result
-
-
-        
-        
-
