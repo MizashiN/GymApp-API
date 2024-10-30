@@ -2,11 +2,15 @@ from flask import Flask, jsonify, request
 from product_scraper import *
 from generic_funcs import funcs
 
+
 app = Flask(__name__)
 
 funcs_instance = funcs()
 
 class API():
+    
+
+    
     @app.route('/motivationmessage', methods=['GET'])
     def get_message():
         response = funcs_instance.getMotivationMessage()

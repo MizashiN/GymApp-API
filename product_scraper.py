@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from requests_cache import CachedSession
 import requests
 import json
 
@@ -14,7 +15,7 @@ class ProductConfig:
             self.config = json.load(f)
 
     def get_config(self, brand):
-        return self.config.get(brand, {})
+        return self.config.get(brand, {})        
     
 class default:
     def __init__(self):
@@ -22,13 +23,17 @@ class default:
         self.mapper = CategoryMapper()
         self.urls = []
         
-class ProductScrapper():
+class ProductScrapper(default):
     @staticmethod     
     def fetch_product(urls, parent_tag, title_tag, img_tag, price_tag, img_attribute="",  parent_class="",  title_class="",  
                       price_class="", img_class="", alternative_img_tag="",alternative_img_class=""):
         product_list = []
+        session = CachedSession (
+            cache_name='cache/session',
+            expire_after=60000
+        )
         for url in urls:
-            res = requests.get(url)
+            res =  session.get(url)
 
             if res.status_code != 200:
                 continue
