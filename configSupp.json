@@ -20,5 +20,16 @@
         "price_tag": "p",
         "img_tag": "img",
         "img_attribute": "data-lazy-src"
-    }
+    },
+    "DarkLab": {
+        "parent_tag": "div",
+        "parent_class": "product-container js-product-container js-quickshop-container position-relative js-quickshop-has-variants",
+        "title_tag": "div",
+        "title_class": "js-item-name item-name",
+        "price_tag": "strong",
+        "price_class": "js-payment-custom-price",
+        "img_tag": "img",
+        "img_attribute": "srcset",
+        "img_class": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in lazyloaded"
+        }
 }
