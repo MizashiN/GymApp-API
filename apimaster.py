@@ -40,14 +40,7 @@ class API():
         result = response.set(category, subcategory)
 
         return jsonify(result)
-    
-    @app.route('/news', methods=['GET'])
-    def get_news():
-        
-        response = funcs_instance.getNews()
-        
-        return jsonify(response)
-    
+
     @app.route('/getImgIcon', methods=['POST'])
     def get_imgicon():
         
