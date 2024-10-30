@@ -25,7 +25,9 @@
 
     "DarkLab": {
         "parent_tag": "div",
-        "parent_class": "product-container js-product-container js-quickshop-container position-relative js-quickshop-has-variants",
+        "parent_class": "js-item-product item item-with-sidebar item-product mb-3 col-6 col-md-6 col-lg-3 col-xl-3 p-md-2 item-animation no-borders",
+        "alternative_parent_tag": "div",
+        "alternative_parent_class": "js-item-product item item-with-sidebar  item-product mb-3 col-6 col-md-6 col-lg-3 col-xl-3 p-md-2 nostock item-animation no-borders",
         "title_tag": "div",
         "title_class": "js-item-name item-name",
         "price_tag": "strong",
