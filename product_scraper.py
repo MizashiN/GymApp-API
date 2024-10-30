@@ -10,7 +10,7 @@ class ProductData:
     price: str
     image_src: str
 class ProductConfig:
-    def __init__(self, config_file='configSupp.json'):
+    def __init__(self, config_file='GymApp-API/configSupp.json'):
         with open(config_file, 'r') as f:
             self.config = json.load(f)
 
@@ -27,6 +27,7 @@ class ProductScrapper(default):
     @staticmethod     
     def fetch_product(urls, parent_tag, title_tag, img_tag, price_tag, img_attribute="",  parent_class="",  title_class="",  
                       price_class="", img_class="", alternative_img_tag="",alternative_img_class=""):
+        
         product_list = []
         session = CachedSession (
             cache_name='cache/session',
@@ -37,14 +38,20 @@ class ProductScrapper(default):
 
             if res.status_code != 200:
                 continue
+
             
-            print(url)
+
             soup = BeautifulSoup(res.content, "html.parser")
             product_items = soup.find_all(parent_tag, class_=parent_class)
+
+            print(soup)
+
             for product_info in product_items:
                 title = product_info.find(title_tag, class_=title_class)
                 price = product_info.find(price_tag, class_=price_class)
                 image = product_info.find(img_tag, class_=img_class)
+
+                
 
                 if not image:
                     image = product_info.find(alternative_img_tag, class_=alternative_img_class)
@@ -53,9 +60,11 @@ class ProductScrapper(default):
                     title_text = title.get_text(strip=True)
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
                     image_src = image.get(img_attribute)
+
+                    
                     
                     product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
-        
+
         result = {
             "total": len(product_list),
             "products": product_list
@@ -150,11 +159,40 @@ class Adaptogen(default):
             **self.config
             )         
 
+class DarkLab(default):
+    def __init__(self):
+        super().__init__()
+        self.name = "DarkLab"
+        self.config = ProductConfig().get_config(self.name)
+        
+    def getUrls(self, category, subcategory=""):
+        if not subcategory:    
+            self.urls = [
+                 f"https://darklabsuplementos.com.br/{category}/"
+                ]
+        else:
+            self.urls = [
+                f"https://darklabsuplementos.com.br/{category}/{subcategory}/"
+            ]
+
+        return self.urls
+    
+    def set(self, category, subcategory=""):
+        mapped_category, mapped_subcategory = self.mapper.map("DarkLab", category, subcategory)
+
+        urls = self.getUrls(mapped_category, mapped_subcategory)
+        print(urls)
+        return self.search(
+            urls=urls,
+            **self.config
+            )         
+
 class All:
     def __init__(self):
         self.brand_instances = [
             Adaptogen(),
-            MaxTitanium()
+            MaxTitanium(),
+            DarkLab()
         ]
     
     def set(self, category, subcategory=""):
@@ -185,21 +223,29 @@ class CategoryMapper():
         return mapped_category, mapped_subcategory
         
     def paramStorage(self, brand_name):
-        if brand_name == "MaxTitanium":
-            self.params = {
-            "proteins": "proteinas",
-            "amino-acids": "aminoacidos",
-            "pre-workouts": "pre-treino",
-            "whey-protein": "whey-protein",
-            "creatine": "creatina"
-             }
-        elif brand_name == "Adaptogen":
-            self.params = {
-                    "proteins": "proteinas",
-                    "pre-workouts": "pre-treino-formulas",
-                    "amino-acids": "aminoacidos",   
-                    "whey-protein": "whey-protein",
-                    "creatine": "creatina"
-                }
-            
+        params_map = {
+            "MaxTitanium": {
+                "proteins": "proteinas",
+                "amino-acids": "aminoacidos",
+                "pre-workouts": "pre-treino",
+                "whey-protein": "whey-protein",
+                "creatine": "creatina"
+            },
+            "Adaptogen": {
+                "proteins": "proteinas",
+                "pre-workouts": "pre-treino-formulas",
+                "amino-acids": "aminoacidos",
+                "whey-protein": "whey-protein",
+                "creatine": "creatina"
+            },
+            "DarkLab": {
+                "proteins": "proteinas",
+                "amino-acids": "aminoacidos",
+                "pre-workouts": "pre-treino",
+                "whey-protein": "whey-protein",
+                "creatine": "creatina"
+            }
+        }
+
+        self.params = params_map.get(brand_name, {})
         return self.params
