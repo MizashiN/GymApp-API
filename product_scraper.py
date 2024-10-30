@@ -256,7 +256,7 @@ class CategoryMapper():
             },
             "DarkLab": {
                 "proteins": "proteinas",
-                "amino-acids": "aminoacidos",
+                "aminoacids": "aminoacidos",
                 "pre-workouts": "pre-treino",
                 "whey-protein": "whey-protein",
                 "creatine": "creatina"
