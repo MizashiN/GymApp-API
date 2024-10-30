@@ -8,18 +8,6 @@ app = Flask(__name__)
 funcs_instance = funcs()
 
 class API():
-    
-
-    
-    @app.route('/motivationmessage', methods=['GET'])
-    def get_message():
-        response = funcs_instance.getMotivationMessage()
-        
-        author = response.get("author", "Unknown")
-        quote = response.get("quote", "No quote available")
-
-        return jsonify({"author": author, "quote": quote})
-    
     @app.route('/maxtitanium', methods=['GET'])
     def get_supp_MaxTitanium():
         
