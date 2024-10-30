@@ -12,6 +12,7 @@
         "alternative_img_tag": "img",
         "alternative_img_class": "product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] aud-object-contain aud-w-full"
     },
+
     "Adaptogen": {
         "parent_tag": "a",
         "parent_class": "woocommerce-LoopProduct-link woocommerce-loop-product__link",
@@ -21,6 +22,7 @@
         "img_tag": "img",
         "img_attribute": "data-lazy-src"
     },
+
     "DarkLab": {
         "parent_tag": "div",
         "parent_class": "product-container js-product-container js-quickshop-container position-relative js-quickshop-has-variants",
@@ -29,7 +31,10 @@
         "price_tag": "strong",
         "price_class": "js-payment-custom-price",
         "img_tag": "img",
-        "img_attribute": "srcset",
-        "img_class": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in lazyloaded"
-        }
+        "img_attribute": "data-srcset",
+        "img_class": "js-item-image lazyautosizes lazyload img-absolute img-absolute-centered fade-in",
+        "alternative_img_tag": "img",
+        "alternative_img_class": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in ls-is-cached lazyloaded"
+    }
+
 }

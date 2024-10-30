@@ -30,6 +30,18 @@ class API():
         result = response.set(category, subcategory)
 
         return jsonify(result)
+    
+    @app.route('/darklab', methods=['GET'])
+    def get_supp_Darklab():
+        
+        category = request.args.get('category')
+        subcategory = request.args.get('subcategory')
+        
+        response = DarkLab()
+        result = response.set(category, subcategory)
+
+        return jsonify(result)
+    
     @app.route('/all', methods=['GET'])
     def get_supp_proteins():
         

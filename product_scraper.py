@@ -10,7 +10,7 @@ class ProductData:
     price: str
     image_src: str
 class ProductConfig:
-    def __init__(self, config_file='GymApp-API/configSupp.json'):
+    def __init__(self, config_file='configSupp.json'):
         with open(config_file, 'r') as f:
             self.config = json.load(f)
 
@@ -26,50 +26,66 @@ class default:
 class ProductScrapper(default):
     @staticmethod     
     def fetch_product(urls, parent_tag, title_tag, img_tag, price_tag, img_attribute="",  parent_class="",  title_class="",  
-                      price_class="", img_class="", alternative_img_tag="",alternative_img_class=""):
+                      price_class="", img_class="", alternative_img_tag="", alternative_img_class=""):
         
         product_list = []
-        session = CachedSession (
+        session = CachedSession(
             cache_name='cache/session',
             expire_after=60000
         )
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+        }
+        
         for url in urls:
-            res =  session.get(url)
-
-            if res.status_code != 200:
-                continue
-
+            print(f"Fetching URL: {url}")
+            res = session.get(url, headers=headers)
             
-
+            print(f"Status Code: {res.status_code}")
+            if res.status_code != 200:
+                print(f"Failed to fetch URL: {url} with status code {res.status_code}")
+                continue
+            
             soup = BeautifulSoup(res.content, "html.parser")
             product_items = soup.find_all(parent_tag, class_=parent_class)
+            print(f"Found {len(product_items)} products with parent tag '{parent_tag}' and class '{parent_class}'")
+            
+            for idx, product_info in enumerate(product_items):
+                print(f"\nProduct {idx+1} HTML: {product_info.prettify()}\n") 
 
-            print(soup)
-
-            for product_info in product_items:
                 title = product_info.find(title_tag, class_=title_class)
                 price = product_info.find(price_tag, class_=price_class)
                 image = product_info.find(img_tag, class_=img_class)
-
                 
-
+                if not title:
+                    print("Warning: Title not found in this product item")
+                if not price:
+                    print("Warning: Price not found in this product item")
                 if not image:
+                    print("Warning: Primary image not found, trying alternative tag and class")
                     image = product_info.find(alternative_img_tag, class_=alternative_img_class)
                 
                 if title and price and image:
                     title_text = title.get_text(strip=True)
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
+    
                     image_src = image.get(img_attribute)
-
                     
+                    print(f"Product Title: {title_text}")
+                    print(f"Product Price: {price_text}")
+                    print(f"Product Image Src: {image_src}")
                     
                     product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
-
+                else:
+                    print("Warning: Skipping product item due to missing data (title, price, or image)")
+        
         result = {
             "total": len(product_list),
             "products": product_list
         }
         
+        print(f"Total products scraped: {result['total']}")
         return result
 
 class MaxTitanium(default):
