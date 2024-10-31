@@ -25,114 +25,75 @@ class default:
         
 class ProductScrapper(default):
     @staticmethod     
-    def fetch_product(urls, parent_tag, alternative_parent_tag, title_tag, img_tag, price_tag, alternative_parent_class="", img_attribute="",  parent_class="",  title_class="",  
-                      price_class="", img_class="", alternative_img_tag="", alternative_img_class=""):
-        
+    def fetch_product(urls, parent_tag, title_tag, img_tag, price_tag, img_attribute="",
+                      parent_class="", title_class="", price_class="", img_class="",
+                      alternative_img_tag="", alternative_img_class="",alternative_parent_class_2="",
+                      alternative_img_tag_2="", alternative_img_class_2="",alternative_parent_tag_2="",
+                      alternative_parent_tag="", alternative_parent_class=""):
+
+        def extract_product_data(soup, parent_tag, parent_class):
+            product_items = soup.find_all(parent_tag, class_=parent_class)
+            
+            for idx, product_info in enumerate(product_items):
+                title = product_info.find(title_tag, class_=title_class)
+                price = product_info.find(price_tag, class_=price_class)
+                image = product_info.find(img_tag, class_=img_class)
+                
+                # Tentar alternativa de imagem
+                if not image:
+                    print("Warning: Primary image not found, trying alternative tag and class")
+                    image = product_info.find(alternative_img_tag, class_=alternative_img_class) or \
+                            product_info.find(alternative_img_tag_2, class_=alternative_img_class_2)
+                
+                # Verificar se os dados foram encontrados
+                if title and price and image:
+                    title_text = title.get_text(strip=True)
+                    price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
+                    image_src = image.get(img_attribute)
+                    
+                    product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
+                else:
+                    print("Warning: Skipping product item due to missing data (title, price, or image)")
+
         product_list = []
         session = CachedSession(
             cache_name='cache/session',
-            expire_after=60000
+            expire_after=3600
         )
         
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
         }
-        
+
+        # Loop para as URLs
         for url in urls:
             print(f"Fetching URL: {url}")
             res = session.get(url, headers=headers)
-            
             print(f"Status Code: {res.status_code}")
+
             if res.status_code != 200:
                 print(f"Failed to fetch URL: {url} with status code {res.status_code}")
                 continue
             
             soup = BeautifulSoup(res.content, "html.parser")
-            product_items = soup.find_all(parent_tag, class_=parent_class)
             
-            print(f"Found {len(product_items)} products with parent tag '{parent_tag}' and class '{parent_class}'")
+            # Primeiro fetch usando o parent_tag principal
+            extract_product_data(soup, parent_tag, parent_class)
+
+            # Se houver parent_tag e class alternativos, fazer novo fetch
+            if alternative_parent_tag and alternative_parent_class:
+                extract_product_data(soup, alternative_parent_tag, alternative_parent_class)
             
-            for idx, product_info in enumerate(product_items):
-                print(f"\nProduct {idx+1} HTML: {product_info.prettify()}\n") 
+            if alternative_parent_tag_2 and alternative_parent_class_2:
+                extract_product_data(soup, alternative_parent_tag_2, alternative_parent_class_2)
 
-                title = product_info.find(title_tag, class_=title_class)
-                price = product_info.find(price_tag, class_=price_class)
-                image = product_info.find(img_tag, class_=img_class)
-                
-                if not title:
-                    print("Warning: Title not found in this product item")
-                if not price:
-                    print("Warning: Price not found in this product item")
-                if not image:
-                    print("Warning: Primary image not found, trying alternative tag and class")
-                    image = product_info.find(alternative_img_tag, class_=alternative_img_class)
-                
-                if title and price and image:
-                    title_text = title.get_text(strip=True)
-                    price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
-    
-                    image_src = image.get(img_attribute)
-                    
-                    print(f"Product Title: {title_text}")
-                    print(f"Product Price: {price_text}")
-                    print(f"Product Image Src: {image_src}")
-                    
-                    product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
-                else:
-                    print("Warning: Skipping product item due to missing data (title, price, or image)")
-                    
-        if alternative_parent_tag and alternative_parent_class:        
-            for url in urls:
-                print(f"Fetching URL: {url}")
-                res = session.get(url, headers=headers)
-                
-                print(f"Status Code: {res.status_code}")
-                if res.status_code != 200:
-                    print(f"Failed to fetch URL: {url} with status code {res.status_code}")
-                    continue
-                
-                soup = BeautifulSoup(res.content, "html.parser")
-                product_items = soup.find_all(alternative_parent_tag, class_=alternative_parent_class)
-                
-                print(f"Found {len(product_items)} products with parent tag '{parent_tag}' and class '{parent_class}'")
-                
-                for idx, product_info in enumerate(product_items):
-                    print(f"\nProduct {idx+1} HTML: {product_info.prettify()}\n") 
-
-                    title = product_info.find(title_tag, class_=title_class)
-                    price = product_info.find(price_tag, class_=price_class)
-                    image = product_info.find(img_tag, class_=img_class)
-                    
-                    if not title:
-                        print("Warning: Title not found in this product item")
-                    if not price:
-                        print("Warning: Price not found in this product item")
-                    if not image:
-                        print("Warning: Primary image not found, trying alternative tag and class")
-                        image = product_info.find(alternative_img_tag, class_=alternative_img_class)
-                    
-                    if title and price and image:
-                        title_text = title.get_text(strip=True)
-                        price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
-        
-                        image_src = image.get(img_attribute)
-                        
-                        print(f"Product Title: {title_text}")
-                        print(f"Product Price: {price_text}")
-                        print(f"Product Image Src: {image_src}")
-                        
-                        product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
-                    else:
-                        print("Warning: Skipping product item due to missing data (title, price, or image)")    
-        
         result = {
             "total": len(product_list),
             "products": product_list
         }
         
-        print(f"Total products scraped: {result['total']}")
         return result
-
+    
 class MaxTitanium(default):
     def __init__(self):
         super().__init__()
@@ -227,14 +188,24 @@ class DarkLab(default):
         self.config = ProductConfig().get_config(self.name)
         
     def getUrls(self, category, subcategory=""):
-        if not subcategory:    
+        if category == "aminoacidos" and not subcategory:
             self.urls = [
-                 f"https://darklabsuplementos.com.br/{category}/"
-                ]
+                 f"https://darklabsuplementos.com.br/aminoacidos/bcaa",
+                 f"https://darklabsuplementos.com.br/aminoacidos/alanina",
+                 f"https://darklabsuplementos.com.br/aminoacidos/creatina",
+                 f"https://darklabsuplementos.com.br/aminoacidos/glutamina",
+                 f"https://darklabsuplementos.com.br/aminoacidos/l-carnitina",
+                 f"https://darklabsuplementos.com.br/aminoacidos/colageno"
+                ]           
         else:
-            self.urls = [
-                f"https://darklabsuplementos.com.br/{category}/{subcategory}/"
-            ]
+            if not subcategory:    
+                self.urls = [
+                    f"https://darklabsuplementos.com.br/{category}/?mpage=2"
+                    ]
+            else:
+                self.urls = [
+                    f"https://darklabsuplementos.com.br/{category}/{subcategory}/"
+                ]
 
         return self.urls
     
@@ -286,25 +257,25 @@ class CategoryMapper():
     def paramStorage(self, brand_name):
         params_map = {
             "MaxTitanium": {
-                "proteins": "proteinas",
-                "amino-acids": "aminoacidos",
-                "pre-workouts": "pre-treino",
+                "protein": "proteinas",
+                "aminoacid": "aminoacidos",
+                "pre-workout": "pre-treino",
                 "whey-protein": "whey-protein",
-                "creatines": "creatina"
+                "creatine": "creatina"
             },
             "Adaptogen": {
-                "proteins": "proteinas",
-                "pre-workouts": "pre-treino-formulas",
-                "amino-acids": "aminoacidos",
+                "protein": "proteinas",
+                "pre-workout": "pre-treino-formulas",
+                "aminoacid": "aminoacidos",
                 "whey-protein": "whey-protein",
-                "creatines": "creatina"
+                "creatine": "creatina"
             },
             "DarkLab": {
-                "proteins": "proteinas",
-                "aminoacids": "aminoacidos",
+                "protein": "proteinas",
+                "aminoacid": "aminoacidos",
                 "pre-workouts": "pre-treino1",
                 "whey-protein": "whey-protein",
-                "creatines": "creatina"
+                "creatine": "creatina"
             }
         }
 
