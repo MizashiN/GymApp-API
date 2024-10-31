@@ -39,6 +39,16 @@
         "alternative_img_class": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in ls-is-cached lazyloaded",
         "alternative_img_tag_2": "img",
         "alternative_img_class_2": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in lazyloaded"
+    },
+    "GrowthSupp": {
+        "parent_tag": "div",
+        "parent_class": "cardprod",
+        "title_tag": "h3",
+        "title_class": "cardprod-nomeProduto-t1",
+        "price_tag": "span",
+        "price_class": "cardprod-valor",
+        "img_tag": "img",
+        "img_attribute": "src"
     }
 
 }

@@ -33,6 +33,7 @@ class ProductScrapper(default):
 
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
+            print(product_items)
             
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
@@ -49,7 +50,7 @@ class ProductScrapper(default):
                 if title and price and image:
                     title_text = title.get_text(strip=True)
                     price_text = price.get_text(strip=True).replace('\u00a0', '').replace('R$', 'R$ ').strip()
-                    image_src = image.get(img_attribute)
+                    image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     
                     product_list.append(ProductData(title=title_text, price=price_text, image_src=image_src))
                 else:
@@ -209,8 +210,26 @@ class DarkLab(default):
 
         return self.urls
     
+
+class GrowthSupp(default):
+    def __init__(self):
+        super().__init__()
+        self.name = "GrowthSupp"
+        self.config = ProductConfig().get_config(self.name)
+        
+    def getUrls(self, category, subcategory=""):
+        i=1
+        while True:
+            self.urls = [
+                    f"https://www.gsuplementos.com.br/{category}/?pg={i}"
+                    ]
+            i+=1
+
+        return self.urls
+    
+    
     def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map("DarkLab", category, subcategory)
+        mapped_category, mapped_subcategory = self.mapper.map("GrowthSupp", category, subcategory)
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
         print(urls)
@@ -257,25 +276,55 @@ class CategoryMapper():
     def paramStorage(self, brand_name):
         params_map = {
             "MaxTitanium": {
-                "protein": "proteinas",
-                "aminoacid": "aminoacidos",
-                "pre-workout": "pre-treino",
-                "whey-protein": "whey-protein",
-                "creatine": "creatina"
+                "proteins": "proteinas",
+                "products": "produtos",
+                "aminoacids": "aminoacidos",
+                "pre-workouts": "pre-treino",
+                "whey-proteins": "whey-protein",
+                "creatines": "creatina",
+                "hypercalorics": "hipercaloricos",
+                "protein-bars": "barras-proteicas",
+                "clothes": "roupas",
+                "shakers": "coqueteleiras",
+                "t-shirts": "camisetas",
+                "vitamins": "vitaminas-e-minerais",
+                "thermogenics": "termogenicos",
+                "carbohydrates": "carboidratos" #SubCategoria, Precisa da Categoria Produtos
             },
             "Adaptogen": {
-                "protein": "proteinas",
-                "pre-workout": "pre-treino-formulas",
-                "aminoacid": "aminoacidos",
-                "whey-protein": "whey-protein",
-                "creatine": "creatina"
+                "proteins": "proteinas",
+                "products": "produtos",
+                "aminoacids": "aminoacidos",
+                "pre-workouts": "pre-treino-formulas",
+                "whey-proteins": "whey-protein",
+                "creatines": "creatina",
+                "hypercalorics": "hipercaloricos",
+                "protein-bars": "barras-de-proteinas",
+                "clothes": "roupas",
+                "shakers": "coqueteleira",
+                "t-shirts": "camisetas",
+                "vitamins": "vitaminas-e-nutrientes",
+                "thermogenics": "termogenico",
+                "carbohydrates": "carboidratos",
+                "weight-loss": "emagrecedores"
             },
             "DarkLab": {
-                "protein": "proteinas",
-                "aminoacid": "aminoacidos",
+                "proteins": "proteinas",
+                "products": "produtos",
+                "aminoacids": "aminoacidos",
                 "pre-workouts": "pre-treino1",
-                "whey-protein": "whey-protein",
-                "creatine": "creatina"
+                "whey-proteins": "whey-protein",
+                "creatines": "creatina",
+                "hypercalorics": "waxy-maize",
+                "protein-bars": "barras-de-proteinas",
+                "clothes": "vestuario2",
+                "shakers": "coqueteleira",
+                "t-shirts": "camisetas",
+                "vitamins": "vitaminas",
+                "thermogenics": "termogenico",
+                "carbohydrates": "carboidratos",
+                "weight-loss": "emagrecedores",
+                "acessories": "acessorios"
             }
         }
 

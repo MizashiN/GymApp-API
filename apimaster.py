@@ -42,6 +42,17 @@ class API():
 
         return jsonify(result)
     
+    @app.route('/growthsupp', methods=['GET'])
+    def get_supp_GrowthSupp():
+        
+        category = request.args.get('category')
+        subcategory = request.args.get('subcategory')
+        
+        response = GrowthSupp()
+        result = response.set(category, subcategory)
+
+        return jsonify(result)
+    
     @app.route('/all', methods=['GET'])
     def get_supp_proteins():
         
