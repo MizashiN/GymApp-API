@@ -166,6 +166,7 @@ class MaxTitanium(default):
         else:
             if not subcategory:
                 self.urls = [
+                    f"https://www.maxtitanium.com.br/{category}",
                     f"https://www.maxtitanium.com.br/produtos/{category}",
                     f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2={category}",
                     f"https://www.maxtitanium.com.br/s?q={category}",
@@ -342,7 +343,6 @@ class CategoryMapper:
                 "vitamins": "vitaminas-e-nutrientes",
                 "thermogenics": "termogenico",
                 "carbohydrates": "carboidratos",
-                "weight-loss": "emagrecedores",
             },
             "DarkLab": {
                 "proteins": "proteinas",
@@ -359,7 +359,6 @@ class CategoryMapper:
                 "vitamins": "vitaminas",
                 "thermogenics": "termogenico",
                 "carbohydrates": "carboidratos",
-                "weight-loss": "emagrecedores",
                 "acessories": "acessorios",
             },
         }
