@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from requests_cache import CachedSession
+from SQLiteOperations import Operations
+from generic_funcs import funcs
 import requests
 import json
 
@@ -23,19 +25,28 @@ class ProductConfig:
 
 class default:
     def __init__(self):
-        self.search = ProductScrapper.fetch_product
         self.mapper = CategoryMapper()
+        self.operation = Operations()
+        self.funcs = funcs()
         self.urls = []
+        self.list_img_srcs = []
+        self.product_list = []
+
 
 
 class ProductScrapper(default):
-    @staticmethod
-    def fetch_product(
+    def fetch_product(self,
         urls,
         parent_tag,
         title_tag,
         img_tag,
         price_tag,
+        price_code="",
+        price_integer="",
+        price_decimal="",
+        price_fraction="",
+        alternative_price_tag="",
+        alternative_price_class="",
         img_attribute="",
         parent_class="",
         title_class="",
@@ -50,14 +61,23 @@ class ProductScrapper(default):
         alternative_parent_tag="",
         alternative_parent_class="",
     ):
-
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
-            print(product_items)
-
+            price = ""
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
-                price = product_info.find(price_tag, class_=price_class)
+
+                if price_tag and price_code and price_integer and price_decimal and price_fraction:
+                    prices = [price_tag, price_code, price_decimal, price_fraction]
+                    price_list = []
+                    for p in prices:
+                        price_scrapp = product_info.find(price_tag, p)
+                        price_list.append(price_scrapp)
+                else:
+                    price = product_info.find(price_tag, class_=price_class)
+                    if not price:
+                        price = product_info.find(alternative_price_tag, class_=alternative_price_class)    
+
                 image = product_info.find(img_tag, class_=img_class)
 
                 # Tentar alternativa de imagem
@@ -71,33 +91,48 @@ class ProductScrapper(default):
                         alternative_img_tag_2, class_=alternative_img_class_2
                     )
 
-                # Verificar se os dados foram encontrados
-                if title and price and image:
+                if title and image and (price or price_list):
                     title_text = title.get_text(strip=True)
-                    price_text = (
-                        price.get_text(strip=True)
-                        .replace("\u00a0", "")
-                        .replace("R$", "R$ ")
-                        .strip()
-                    )
+                    if price:
+                        price_text = (
+                            price.get_text(strip=True)
+                            .replace("\u00a0", "")
+                            .replace("R$", "R$ ")
+                            .strip()
+                        )
+                    else:
+                        price_text = (
+                            " ".join(price_list).strip()
+                        )
                     image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
 
-                    product_list.append(
+                    print(title_text)
+                    print(price_text)
+                    print(image_src)
+
+
+                    self.product_list.append(
                         ProductData(
                             title=title_text,
                             price=price_text,
                             image_src=image_src,
                         )
-                    )
+                    )   
                 else:
                     print(
                         "Warning: Skipping product item due to missing data (title, price, or image)"
                     )
-
-        product_list = []
-        session = CachedSession(cache_name="cache/session", expire_after=3600)
+                
+            self.list_img_srcs = [product.image_src for product in self.product_list]
+            if not self.list_img_srcs:
+                print("Warning: No image sources found. sla will not be called.")
+            else:
+                print(self.list_img_srcs)
+            self.sla(self.list_img_srcs)
+        
+        session = CachedSession(cache_name="cache/session", expire_after=1)
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -129,12 +164,17 @@ class ProductScrapper(default):
                     soup, alternative_parent_tag_2, alternative_parent_class_2
                 )
 
-        result = {"total": len(product_list), "products": product_list}
 
+        result = {"total": len(self.product_list), "products": self.product_list}
         return result
+    
 
+    def sla(self, list_img_srcs):
+        self.list = self.operation.VerifyImages(list_img_srcs)
+        print(f"List of URLs to download: {self.list}")   
+        self.funcs.download_images(self.list)
 
-class MaxTitanium(default):
+class MaxTitanium(ProductScrapper):
     def __init__(self):
         super().__init__()
         self.name = "MaxTitanium"
@@ -184,10 +224,10 @@ class MaxTitanium(default):
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
 
-        return self.search(urls=urls, **self.config)
+        return self.fetch_product(urls=urls, **self.config)
 
 
-class Adaptogen(default):
+class Adaptogen(ProductScrapper):
     def __init__(self):
         super().__init__()
         self.name = "Adaptogen"
@@ -215,10 +255,10 @@ class Adaptogen(default):
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
 
-        return self.search(urls=urls, **self.config)
+        return self.fetch_product(urls=urls, **self.config)
 
 
-class DarkLab(default):
+class DarkLab(ProductScrapper):
     def __init__(self):
         super().__init__()
         self.name = "DarkLab"
@@ -250,11 +290,10 @@ class DarkLab(default):
         )
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
-        print(urls)
-        return self.search(urls=urls, **self.config)
+        return self.fetch_product(urls=urls, **self.config)
 
 
-class GrowthSupp(default):
+class GrowthSupp(ProductScrapper):
     def __init__(self):
         super().__init__()
         self.name = "GrowthSupp"
@@ -274,9 +313,34 @@ class GrowthSupp(default):
         )
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
-        print(urls)
-        return self.search(urls=urls, **self.config)
+        return self.fetch_product(urls=urls, **self.config)
+    
+class Darkness(ProductScrapper):
+    def __init__(self):
+        super().__init__()
+        self.name = "Darkness"
+        self.config = ProductConfig().get_config(self.name)
 
+    def getUrls(self, category, subcategory=""):
+            if not subcategory:
+                self.urls = [
+                    f"https://www.darkness.com.br/{category}"
+                ]
+            else:
+                self.urls = [
+                    f"https://www.darkness.com.br/{category}/{subcategory}"
+                ]
+            return self.urls
+
+    def set(self, category, subcategory=""):
+        mapped_category, mapped_subcategory = self.mapper.map(
+            "Darkness", category, subcategory
+        )
+
+        urls = self.getUrls(mapped_category, mapped_subcategory)
+
+        return self.fetch_product(urls=urls, **self.config)
+    
 
 class All:
     def __init__(self):
@@ -361,6 +425,25 @@ class CategoryMapper:
                 "carbohydrates": "carboidratos",
                 "acessories": "acessorios",
             },
+
+            "Darkness": {
+                "proteins": "proteina",
+                "products": "produtos",
+                "aminoacids": "aminoacidos",
+                "pre-workouts": "pre-treino",
+                "whey-proteins": "whey-protein",
+                "creatines": "creatina",
+                "hypercalorics": "hipercalorico",
+                "protein-bars": "barra-de-proteina",
+                "clothes": "moda",
+                "shakers": "coqueteleira",
+                "t-shirts": "camisetas",
+                "vitamins": "vitaminas",
+                "thermogenics": "termogenico",
+                "carbohydrates": "carboidratos",
+                "acessories": "acessorios",
+            },
+
         }
 
         self.params = params_map.get(brand_name, {})
