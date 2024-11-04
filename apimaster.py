@@ -41,6 +41,16 @@ class API:
         result = response.set(category, subcategory)
 
         return jsonify(result)
+    @app.route("/mith", methods=["GET"])
+    def get_supp_Mith():
+
+        category = request.args.get("category")
+        subcategory = request.args.get("subcategory")
+
+        response = Mith()
+        result = response.set(category, subcategory)
+
+        return jsonify(result)
 
     @app.route("/growthsupp", methods=["GET"])
     def get_supp_GrowthSupp():
