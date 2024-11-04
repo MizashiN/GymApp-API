@@ -52,6 +52,18 @@ class API:
         result = response.set(category, subcategory)
 
         return jsonify(result)
+    
+    @app.route("/darkness", methods=["GET"])
+    def get_supp_Darkness():
+
+        category = request.args.get("category")
+        subcategory = request.args.get("subcategory")
+
+        response = Darkness()
+        result = response.set(category, subcategory)
+
+        return jsonify(result)
+    
 
     @app.route("/all", methods=["GET"])
     def get_supp_proteins():
