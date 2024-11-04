@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from requests_cache import CachedSession
 from SQLiteOperations import Operations
 from generic_funcs import funcs
-import requests
 import json
+import re
 
 
 @dataclass
@@ -12,6 +12,7 @@ class ProductData:
     title: str
     price: str
     image_src: str
+    url: str
 
 
 class ProductConfig:
@@ -41,17 +42,23 @@ class ProductScrapper(default):
         title_tag,
         img_tag,
         price_tag,
+        url_tag="",
+        url_attribute="",
+        url_base="",
+        url_class="",
+        price_parent_tag="",
+        price_parent_class="",
         price_code="",
         price_integer="",
         price_decimal="",
         price_fraction="",
-        alternative_price_tag="",
-        alternative_price_class="",
         img_attribute="",
         parent_class="",
         title_class="",
         price_class="",
         img_class="",
+        alternative_price_parent_tag="",
+        alternative_price_parent_class="",
         alternative_img_tag="",
         alternative_img_class="",
         alternative_parent_class_2="",
@@ -63,24 +70,33 @@ class ProductScrapper(default):
     ):
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
+
             price = ""
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
 
+                price_list = []
                 if price_tag and price_code and price_integer and price_decimal and price_fraction:
-                    prices = [price_tag, price_code, price_decimal, price_fraction]
-                    price_list = []
-                    for p in prices:
-                        price_scrapp = product_info.find(price_tag, p)
-                        price_list.append(price_scrapp)
+                    price_separated = [price_code, price_integer, price_decimal, price_fraction]
+                    
+                    price_items = product_info.find(price_parent_tag, class_=price_parent_class) or product_info.find(alternative_price_parent_tag, alternative_price_parent_class)
+                    if price_items:
+                        for p in price_separated:
+                            price_scrapp = price_items.find(price_tag, class_=p)
+                            if price_scrapp:
+                                price_un = price_scrapp.get_text(strip=True)
+                                price_list.append(price_un)
+                                print(f"Preço encontrado: {price_un}")
+                            else:
+                                print(f"Warning: Preço não encontrado para {p} no item {idx + 1}.")
+                    else:
+                        print(f"Warning: Preço não encontrado para {p} no item {idx + 1}.")
+   
                 else:
-                    price = product_info.find(price_tag, class_=price_class)
-                    if not price:
-                        price = product_info.find(alternative_price_tag, class_=alternative_price_class)    
+                    price = product_info.find(price_tag, class_=price_class)   
 
                 image = product_info.find(img_tag, class_=img_class)
 
-                # Tentar alternativa de imagem
                 if not image:
                     print(
                         "Warning: Primary image not found, trying alternative tag and class"
@@ -90,27 +106,51 @@ class ProductScrapper(default):
                     ) or product_info.find(
                         alternative_img_tag_2, class_=alternative_img_class_2
                     )
+                
+                link_product = product_info.find(url_tag, url_class)
 
-                if title and image and (price or price_list):
+                if not link_product:
+                    parent_item = product_info.find_parent()
+                    print(parent_item)
+                    if parent_item:
+                        link_product =  parent_item.find(url_tag, class_=url_class)
+                        if link_product:
+                            print(f"Link do produto encontrado no pai: {link_product}")
+                        else:
+                            print("Warning: href não encontrado no elemento pai.")
+                    else:
+                        print("Warning: Elemento pai não encontrado.")
+
+
+                if title and image and link_product and (price or price_list):
                     title_text = title.get_text(strip=True)
                     if price:
                         price_text = (
                             price.get_text(strip=True)
                             .replace("\u00a0", "")
                             .replace("R$", "R$ ")
+                            .replace("R$  ", "R$ ")
                             .strip()
                         )
-                    else:
+                        
+                        price_text = re.sub(r'^(R\$ \d{1,3}(?:\.\d{3})*(?:,\d{2})?)(.*)', r'\1', price_text).strip()
+                    if price_list:
                         price_text = (
-                            " ".join(price_list).strip()
+                            "".join(price_list).replace("R$", "R$ ")
                         )
+
+                    url_product = link_product.get(url_attribute)
+                    pos = -1 
+                    if url_base:
+                        url_product = url_base + url_product
+                        pos = url_product.find('https')
+
+                    if pos != -1:
+                        url_product = url_product[pos:]
+                    
                     image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
-
-                    print(title_text)
-                    print(price_text)
-                    print(image_src)
 
 
                     self.product_list.append(
@@ -118,6 +158,7 @@ class ProductScrapper(default):
                             title=title_text,
                             price=price_text,
                             image_src=image_src,
+                            url=url_product
                         )
                     )   
                 else:
@@ -126,11 +167,8 @@ class ProductScrapper(default):
                     )
                 
             self.list_img_srcs = [product.image_src for product in self.product_list]
-            if not self.list_img_srcs:
-                print("Warning: No image sources found. sla will not be called.")
-            else:
-                print(self.list_img_srcs)
-            self.sla(self.list_img_srcs)
+            self.list_srcs = self.VerifyImgExists(self.list_img_srcs)
+            self.InsertImgOnDatabase(self.list_srcs)
         
         session = CachedSession(cache_name="cache/session", expire_after=1)
 
@@ -150,10 +188,8 @@ class ProductScrapper(default):
 
             soup = BeautifulSoup(res.content, "html.parser")
 
-            # Primeiro fetch usando o parent_tag principal
             extract_product_data(soup, parent_tag, parent_class)
 
-            # Se houver parent_tag e class alternativos, fazer novo fetch
             if alternative_parent_tag and alternative_parent_class:
                 extract_product_data(
                     soup, alternative_parent_tag, alternative_parent_class
@@ -169,10 +205,15 @@ class ProductScrapper(default):
         return result
     
 
-    def sla(self, list_img_srcs):
+    def VerifyImgExists(self, list_img_srcs):
         self.list = self.operation.VerifyImages(list_img_srcs)
-        print(f"List of URLs to download: {self.list}")   
-        self.funcs.download_images(self.list)
+
+        return self.list
+    
+    def InsertImgOnDatabase(self, list_urls):
+        if list_urls:
+            self.funcs.download_images(list_urls)
+        
 
 class MaxTitanium(ProductScrapper):
     def __init__(self):
@@ -324,7 +365,9 @@ class Darkness(ProductScrapper):
     def getUrls(self, category, subcategory=""):
             if not subcategory:
                 self.urls = [
-                    f"https://www.darkness.com.br/{category}"
+                    f"https://www.darkness.com.br/{category}",
+                    f"https://www.darkness.com.br/{category}?page=2",
+                    f"https://www.darkness.com.br/{category}?page=3"
                 ]
             else:
                 self.urls = [
@@ -341,10 +384,42 @@ class Darkness(ProductScrapper):
 
         return self.fetch_product(urls=urls, **self.config)
     
+class Mith(ProductScrapper):
+    def __init__(self):
+        super().__init__()
+        self.name = "Mith"
+        self.config = ProductConfig().get_config(self.name)
+
+    def getUrls(self, category, subcategory=""):
+            if category == "waxy-maize" and not subcategory:
+                self.urls = [
+                    f"https://www.mithoficial.com.br/waxy%20maize?_q=Waxy%20Maize&map=ft"
+                ]
+            else:
+                if not subcategory:
+                    self.urls = [
+                        f"https://www.mithoficial.com.br/{category}"
+                    ]
+                else:
+                    self.urls = [
+                        f"https://www.mithoficial.com.br/{category}/{subcategory}"
+                    ]
+            return self.urls
+
+    def set(self, category, subcategory=""):
+        mapped_category, mapped_subcategory = self.mapper.map(
+            "Mith", category, subcategory
+        )
+
+        urls = self.getUrls(mapped_category, mapped_subcategory)
+
+        return self.fetch_product(urls=urls, **self.config)
+    
+    
 
 class All:
     def __init__(self):
-        self.brand_instances = [Adaptogen(), MaxTitanium(), DarkLab()]
+        self.brand_instances = [Adaptogen(), MaxTitanium(), DarkLab(), Darkness(), Mith]
 
     def set(self, category, subcategory=""):
         product_list = []  # Reinicializa a lista para evitar duplicação
@@ -444,6 +519,24 @@ class CategoryMapper:
                 "acessories": "acessorios",
             },
 
+            "Mith": {
+                "proteins": "proteinas-whey-protein",
+                "products": "suplementos",
+                "aminoacids": "aminoacidos",
+                "pre-workouts": "pre-treino",
+                "whey-proteins": "proteinas-whey-protein",
+                "creatines": "creatina",
+                "hypercalorics": "hipercalorico",
+                "protein-bars": "barra-de-proteina",
+                "clothes": "moda",
+                "shakers": "coqueteleiras-mith",
+                "t-shirts": "camisetas",
+                "vitamins": "vitaminas",
+                "thermogenics": "termogenico",
+                "carbohydrates": "waxy-maize",
+                "acessories": "acessorios",
+                "kits": "kits-promocionais",
+            },
         }
 
         self.params = params_map.get(brand_name, {})
