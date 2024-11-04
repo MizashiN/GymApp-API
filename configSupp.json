@@ -10,7 +10,10 @@
         "img_attribute": "src",
         "img_class": "product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] product-card__img--first lg:aud-transition-all lg:aud-duration-300 aud-object-contain aud-w-full",
         "alternative_img_tag": "img",
-        "alternative_img_class": "product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] aud-object-contain aud-w-full"
+        "alternative_img_class": "product-card__img mobile-only:aud-h-[var(--mobile-image-height)] lg:aud-h-[var(--desk-image-height)] aud-object-contain aud-w-full",
+        "url_tag":"a",
+        "url_attribute":"href",
+        "url_base":"https://www.maxtitanium.com.br"
     },
 
     "Adaptogen": {
@@ -20,7 +23,10 @@
         "title_class": "woocommerce-loop-product__title",
         "price_tag": "p",
         "img_tag": "img",
-        "img_attribute": "data-lazy-src"
+        "img_attribute": "data-lazy-src",
+        "url_attribute":"href",
+        "url_tag": "a",
+        "url_class": "woocommerce-LoopProduct-link woocommerce-loop-product__link"
     },
 
     "DarkLab": {
@@ -38,7 +44,9 @@
         "alternative_img_tag": "img",
         "alternative_img_class": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in ls-is-cached lazyloaded",
         "alternative_img_tag_2": "img",
-        "alternative_img_class_2": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in lazyloaded"
+        "alternative_img_class_2": "js-item-image lazyautosizes img-absolute img-absolute-centered fade-in lazyloaded",
+        "url_tag":"a",
+        "url_attribute":"href"
     },
     "GrowthSupp": {
         "parent_tag": "div",
@@ -52,21 +60,47 @@
     },
 
     "Darkness": {
-        "parent_tag": "article",
-        "parent_class": "vtex-product-summary-2-x-element vtex-product-summary-2-x-element--default pointer pt3 pb4 flex flex-column h-100",
+        "parent_tag": "section",
+        "parent_class": "vtex-product-summary-2-x-container vtex-product-summary-2-x-container--default vtex-product-summary-2-x-containerNormal vtex-product-summary-2-x-containerNormal--default overflow-hidden br3 h-100 w-100 flex flex-column justify-between center tc",
         "title_tag": "span",
         "title_class": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body",
         "price_tag": "span",
+        "price_parent_tag": "span",
+        "price_parent_class" :"vtex-product-price-1-x-sellingPriceValue vtex-product-price-1-x-sellingPriceValue--shelfDefault",
+        "alternative_price_parent_tag": "span",
+        "alternative_price_parent_class" :"vtex-product-price-1-x-sellingPrice vtex-product-price-1-x-sellingPrice--shelfDefault",              
         "price_code": "vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--shelfDefault",
         "price_integer": "vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--shelfDefault",
         "price_decimal": "vtex-product-price-1-x-currencyDecimal vtex-product-price-1-x-currencyDecimal--shelfDefault",
         "price_fraction": "vtex-product-price-1-x-currencyFraction vtex-product-price-1-x-currencyFraction--shelfDefault",
-        "alternative_price_tag": "p",
-        "alternative_price_class": "darkness-store-components-0-x-priceCustom",
         "img_tag": "img",
         "img_attribute": "src",
         "img_class": "vtex-product-summary-2-x-imageNormal vtex-product-summary-2-x-image vtex-product-summary-2-x-image--shelfDefault",
-        "alternative_img_tag": "img",
-        "alternative_img_class": "darkness-store-components-0-x-imageCustom"
+        "url_tag":"a",
+        "url_class": "vtex-product-summary-2-x-clearLink vtex-product-summary-2-x-clearLink--default h-100 flex flex-column",
+        "url_attribute":"href",
+        "url_base": "https://www.darkness.com.br"
+    },
+    "Mith": {
+        "parent_tag": "section",
+        "parent_class": "vtex-product-summary-2-x-container vtex-product-summary-2-x-containerNormal overflow-hidden br3 h-100 w-100 flex flex-column justify-between center tc",
+        "title_tag": "span",
+        "title_class": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body",
+        "price_tag": "span",
+        "price_parent_tag": "span",
+        "price_parent_class" :"vtex-product-price-1-x-currencyContainer vtex-product-price-1-x-currencyContainer--price-pix",         
+        "price_code": "vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--price-pix",
+        "price_integer": "vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--price-pix",
+        "price_decimal": "vtex-product-price-1-x-currencyDecimal vtex-product-price-1-x-currencyDecimal--price-pix",
+        "price_fraction": "vtex-product-price-1-x-currencyFraction vtex-product-price-1-x-currencyFraction--price-pix",
+        "img_tag": "img",
+        "img_attribute": "src",
+        "img_class": "vtex-product-summary-2-x-imageNormal vtex-product-summary-2-x-image vtex-product-summary-2-x-image--shelf-image vtex-product-summary-2-x-mainImageHovered vtex-product-summary-2-x-mainImageHovered--shelf-image",
+        "url_tag":"a",
+        "url_class": "vtex-product-summary-2-x-clearLink h-100 flex flex-column",
+        "url_attribute":"href",
+        "url_base": "https://www.mithoficial.com.br"
     }
+
 }
+
