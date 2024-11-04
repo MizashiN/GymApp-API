@@ -49,6 +49,24 @@
         "price_class": "cardprod-valor",
         "img_tag": "img",
         "img_attribute": "src"
-    }
+    },
 
+    "Darkness": {
+        "parent_tag": "article",
+        "parent_class": "vtex-product-summary-2-x-element vtex-product-summary-2-x-element--default pointer pt3 pb4 flex flex-column h-100",
+        "title_tag": "span",
+        "title_class": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body",
+        "price_tag": "span",
+        "price_code": "vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--shelfDefault",
+        "price_integer": "vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--shelfDefault",
+        "price_decimal": "vtex-product-price-1-x-currencyDecimal vtex-product-price-1-x-currencyDecimal--shelfDefault",
+        "price_fraction": "vtex-product-price-1-x-currencyFraction vtex-product-price-1-x-currencyFraction--shelfDefault",
+        "alternative_price_tag": "p",
+        "alternative_price_class": "darkness-store-components-0-x-priceCustom",
+        "img_tag": "img",
+        "img_attribute": "src",
+        "img_class": "vtex-product-summary-2-x-imageNormal vtex-product-summary-2-x-image vtex-product-summary-2-x-image--shelfDefault",
+        "alternative_img_tag": "img",
+        "alternative_img_class": "darkness-store-components-0-x-imageCustom"
+    }
 }
