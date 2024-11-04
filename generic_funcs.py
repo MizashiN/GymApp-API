@@ -1,57 +1,80 @@
 import requests
-from PIL import Image, ImageDraw
-import io
+from PIL import Image
+import os 
 
 class funcs:
-    def getMotivationMessage(self):
-        url = "https://inspirational-quote-generator.p.rapidapi.com/quoteGenerator"
+    def __init__(self) -> None:
+        self.input_path = os.path.join(
+            "input_image_path" 
+        )
+        self.output_path = os.path.join(
+            "output_image_path"  # Diretório de saída
+        )
+    def download_images(self, urls):
+        save_directory = "input_image_path"
 
-        headers = {
-            "x-rapidapi-key": "4f96e03eb6msh9eefc2d7a1d7e2cp12f686jsn6513a410c92a",
-            "x-rapidapi-host": "inspirational-quote-generator.p.rapidapi.com"
-        }
+        for url in urls:
+            file_name = os.path.basename(url)
+            save_path = os.path.join(save_directory, file_name)
 
-        response = requests.get(url, headers=headers)
-
-        return response.json()
-    
-    def get_icon_img(self, input_image_path):  
-        input_image = Image.open(input_image_path).convert("RGB")
-        input_image_resized = input_image.resize((200, 200))
-        width, height = input_image_resized.size
-        mask = Image.new('L', (width, height), 0)
-        draw = ImageDraw.Draw(mask)
-        radius = 98
-
-        circle_bbox = (width // 2 - radius, height // 2 - radius, width // 2 + radius, height // 2 + radius)
-        draw.ellipse(circle_bbox, fill=255)
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    with open(save_path, "wb") as f:
+                        f.write(response.content)
+                    print(f"Imagem baixada com sucesso em: {save_path}")
+                else:
+                    print(
+                        f"Falha ao fazer o download da imagem {url}. Código de status: {response.status_code}"
+                    )
+            except Exception as e:
+                print(f"Ocorreu um erro ao baixar a imagem {url}: {e}")
         
-        input_image_resized.putalpha(mask)
+        self.get_icon_img(input_image_path=self.input_path, output_path=self.output_path)
 
-        # Converter a imagem para blob
-        image_blob = io.BytesIO()
-        input_image_resized.save(image_blob, format="PNG")
-        image_blob.seek(0)  # Voltar para o início do arquivo
+    def get_icon_img(self, input_image_path, output_path):
+        # Verifica se o diretório de entrada existe
+        if not os.path.isdir(input_image_path):
+            print(f"O diretório de entrada {input_image_path} não existe.")
+            return
 
-        return image_blob.getvalue()
+        # Cria o diretório de saída, se não existir
+        if not os.path.isdir(output_path):
+            os.makedirs(output_path)
+            print(f"O diretório de saída {output_path} foi criado.")
 
-    def getNews(self):
-        url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q=health&api-key=ZILCSZHbyPDyAnFlhSTBc2ccXhIOf3KH"
-        
-        response = requests.get(url)
-        data = response.json()
-        
-        first_doc = data["response"]["docs"][4]
-        
-        title = first_doc["headline"]["main"]
-        paragraph = first_doc["lead_paragraph"]
-        article_url = first_doc["web_url"]        
-        
-        result = {
-            "title": title,
-            "paragraph": paragraph,
-            "url": article_url
-        }
-    
-    # Convertendo o dicionário para JSON
-        return result
+        # Itera sobre os arquivos no diretório de entrada
+        for filename in os.listdir(input_image_path):
+            if filename.lower().endswith(
+                (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp")
+            ):
+                try:
+                    # Caminho completo para o arquivo de entrada
+                    full_image_path = os.path.join(input_image_path, filename)
+
+                    input_image = Image.open(full_image_path).convert("RGBA")
+
+                    output_image_resized = input_image.resize((250, 250), Image.LANCZOS)
+
+                    # Cria uma nova imagem com fundo branco
+                    output_image_with_background = Image.new(
+                        "RGBA", (250, 250), (255, 255, 255, 255)
+                    )
+
+                    output_image_with_background.paste(
+                        output_image_resized, (0, 0), output_image_resized
+                    )
+
+                    # Converte para RGB antes de salvar
+                    output_image_with_background = output_image_with_background.convert(
+                        "RGB"
+                    )
+                    output_file_path = os.path.join(
+                        output_path, f"{filename.rsplit('.', 1)[0]}.png"
+                    )
+
+                    # Salva a imagem redimensionada com fundo branco como PNG
+                    output_image_with_background.save(output_file_path, format="PNG")
+                    print(f"Imagem salva em: {output_file_path}")
+                except Exception as e:
+                    print(f"Erro ao processar a imagem {filename}: {e}")
