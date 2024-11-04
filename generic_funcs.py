@@ -1,6 +1,7 @@
 import requests
 from PIL import Image
 import os 
+from SQLiteOperations import Operations
 
 class funcs:
     def __init__(self) -> None:
@@ -10,28 +11,35 @@ class funcs:
         self.output_path = os.path.join(
             "output_image_path"  # Diretório de saída
         )
+        self.operation = Operations()
     def download_images(self, urls):
         save_directory = "input_image_path"
 
-        for url in urls:
-            file_name = os.path.basename(url)
+        for self.url in urls:
+            file_name = os.path.basename(self.url) + '.png' 
+            file_name = file_name.replace("?", "").replace("&", "")
             save_path = os.path.join(save_directory, file_name)
 
             try:
-                response = requests.get(url)
+                response = requests.get(self.url)
                 if response.status_code == 200:
                     with open(save_path, "wb") as f:
                         f.write(response.content)
                     print(f"Imagem baixada com sucesso em: {save_path}")
                 else:
                     print(
-                        f"Falha ao fazer o download da imagem {url}. Código de status: {response.status_code}"
+                        f"Falha ao fazer o download da imagem {self.url}. Código de status: {response.status_code}"
                     )
             except Exception as e:
-                print(f"Ocorreu um erro ao baixar a imagem {url}: {e}")
+                print(f"Ocorreu um erro ao baixar a imagem {self.url}: {e}")
         
-        self.get_icon_img(input_image_path=self.input_path, output_path=self.output_path)
+            self.get_icon_img(input_image_path=self.input_path, output_path=self.output_path)
+            self.blob = self.GetBlobImg(path=self.output_path, filename=file_name)
+            self.operation.InsertImg(self.url, self.blob)
+            self.DeleteFiles(path=self.output_path)
+            self.DeleteFiles(path=self.input_path)
 
+        
     def get_icon_img(self, input_image_path, output_path):
         # Verifica se o diretório de entrada existe
         if not os.path.isdir(input_image_path):
@@ -77,4 +85,36 @@ class funcs:
                     output_image_with_background.save(output_file_path, format="PNG")
                     print(f"Imagem salva em: {output_file_path}")
                 except Exception as e:
-                    print(f"Erro ao processar a imagem {filename}: {e}")
+                     print(f"Erro ao processar a imagem {filename}: {e}")
+    
+    def GetBlobImg(self, path, filename):
+
+        full_image_path = os.path.join(path, filename)
+        with open(full_image_path, 'rb') as file:
+            blob_data = file.read()
+
+        return blob_data
+    
+    def DeleteFiles(self, path):
+        if not os.path.isdir(path):
+            print(f"A pasta '{path}' não existe.")
+            return
+
+        # Lista todos os arquivos na pasta e os remove
+        for arquivo in os.listdir(path):
+            full_path = os.path.join(path, arquivo)
+            
+            # Verifica se é um arquivo (ignora diretórios)
+            if os.path.isfile(full_path):
+                os.remove(full_path)  # Remove o arquivo
+                print(f"Arquivo '{arquivo}' removido.")
+            else:
+                print(f"'{arquivo}' não é um arquivo, ignorado.")
+
+
+
+                        
+
+        
+
+    
