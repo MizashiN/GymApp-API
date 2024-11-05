@@ -35,9 +35,8 @@ class funcs:
         
             self.get_icon_img(input_image_path=self.input_path, output_path=self.output_path)
             self.blob = self.GetBlobImg(path=self.output_path, filename=file_name)
-            self.operation.InsertImg(self.url, self.blob)
-            self.DeleteFiles(path=self.output_path)
-            self.DeleteFiles(path=self.input_path)
+            self.operation.insert_img(self.url, self.blob)
+            self.DeleteFiles(input_path=self.input_path ,output_path=self.output_path)
 
         
     def get_icon_img(self, input_image_path, output_path):
@@ -95,19 +94,25 @@ class funcs:
 
         return blob_data
     
-    def DeleteFiles(self, path):
-        if not os.path.isdir(path):
-            print(f"A pasta '{path}' não existe.")
-            return
-
+    def DeleteFiles(self, input_path, output_path):
         # Lista todos os arquivos na pasta e os remove
-        for arquivo in os.listdir(path):
-            full_path = os.path.join(path, arquivo)
+        for arquivo in os.listdir(input_path):
+            full_path = os.path.join(input_path, arquivo)
             
             # Verifica se é um arquivo (ignora diretórios)
             if os.path.isfile(full_path):
                 os.remove(full_path)  # Remove o arquivo
-                print(f"Arquivo '{arquivo}' removido.")
+                print(f"Arquivo '{arquivo}' removido em {input_path}.")
+            else:
+                print(f"'{arquivo}' não é um arquivo, ignorado.")
+        
+        for arquivo in os.listdir(output_path):
+            full_path = os.path.join(output_path, arquivo)
+            
+            # Verifica se é um arquivo (ignora diretórios)
+            if os.path.isfile(full_path):
+                os.remove(full_path)  # Remove o arquivo
+                print(f"Arquivo '{arquivo}' removido em {output_path}.")
             else:
                 print(f"'{arquivo}' não é um arquivo, ignorado.")
 

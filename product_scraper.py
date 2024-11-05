@@ -185,7 +185,7 @@ class ProductScrapper(default):
                         "Warning: Skipping product item due to missing data (title, price, or image)"
                     )
 
-        session = CachedSession(cache_name="cache/session", expire_after=1)
+        session = CachedSession(cache_name="cache/session", expire_after=180)
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -227,7 +227,7 @@ class ProductScrapper(default):
         return result
 
     def VerifyImgExists(self, list_img_srcs):
-        self.list = self.operation.VerifyImages(list_img_srcs)
+        self.list = self.operation.verify_images(list_img_srcs)
 
         return self.list
 
@@ -296,7 +296,7 @@ class Adaptogen(ProductScrapper):
         self.config = ProductConfig().get_config(self.name)
 
     def getUrls(self, category, subcategory=""):
-        if category == "whey-protein" and not subcategory:
+        if subcategory == "whey-protein" and category:
             self.urls = [
                 "https://adaptogen.com.br/proteinas/whey-protein-3w/",
                 "https://adaptogen.com.br/proteinas/whey-protein-concentrada-proteinas/",
@@ -420,7 +420,7 @@ class Mith(ProductScrapper):
             if not subcategory:
                 self.urls = [f"https://www.mithoficial.com.br/{category}"]
             else:
-                self.urls = [f"https://www.mithoficial.com.br/{category}/{subcategory}"]
+                self.urls = [f"https://www.mithoficial.com.br/{subcategory}/{category}?initialMap=productClusterIds&initialQuery=221&map=category-3,productclusternames"]
         return self.urls
 
     def set(self, category, subcategory=""):

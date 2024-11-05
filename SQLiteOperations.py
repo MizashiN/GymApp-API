@@ -29,15 +29,24 @@ class Operations:
     def verify_images(self, src_list):
         if self.conn is None or not self.conn.is_connected():
             self.connect()
-        self.list = src_list.copy()
 
-        for image_src in src_list:
-            self.cursor.execute(
-                "SELECT image_src FROM images WHERE image_src = %s", (image_src,)
-            )
-            result = self.cursor.fetchone()
-            if result:
-                self.list.remove(image_src)
+        # Cria um cursor buffered
+        with self.conn.cursor(buffered=True) as cursor:
+            self.list = src_list.copy()
+            images_to_remove = []
+
+            for image_src in src_list:
+                cursor.execute(
+                    "SELECT image_src FROM images WHERE image_src = %s", (image_src,)
+                )
+                result = cursor.fetchone()
+                if result:
+                    images_to_remove.append(image_src)
+
+            # Remove imagens que existem no banco de dados
+            for image in images_to_remove:
+                self.list.remove(image)
+
         return self.list
 
     def insert_img(self, image_src, image_blob):
