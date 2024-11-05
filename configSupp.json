@@ -66,9 +66,9 @@
         "title_class": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body",
         "price_tag": "span",
         "price_parent_tag": "span",
-        "price_parent_class" :"vtex-product-price-1-x-sellingPriceValue vtex-product-price-1-x-sellingPriceValue--shelfDefault",
+        "price_parent_class" :"vtex-product-price-1-x-sellingPrice vtex-product-price-1-x-sellingPrice--shelfDefault vtex-product-price-1-x-sellingPrice--hasListPrice vtex-product-price-1-x-sellingPrice--shelfDefault--hasListPrice",
         "alternative_price_parent_tag": "span",
-        "alternative_price_parent_class" :"vtex-product-price-1-x-sellingPrice vtex-product-price-1-x-sellingPrice--shelfDefault",              
+        "alternative_price_parent_class" :"vtex-product-price-1-x-sellingPrice vtex-product-price-1-x-sellingPrice--shelfDefault",
         "price_code": "vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--shelfDefault",
         "price_integer": "vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--shelfDefault",
         "price_decimal": "vtex-product-price-1-x-currencyDecimal vtex-product-price-1-x-currencyDecimal--shelfDefault",
@@ -88,7 +88,7 @@
         "title_class": "vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body",
         "price_tag": "span",
         "price_parent_tag": "span",
-        "price_parent_class" :"vtex-product-price-1-x-currencyContainer vtex-product-price-1-x-currencyContainer--price-pix",         
+        "price_parent_class" :"vtex-product-price-1-x-currencyContainer vtex-product-price-1-x-currencyContainer--price-pix",
         "price_code": "vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--price-pix",
         "price_integer": "vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--price-pix",
         "price_decimal": "vtex-product-price-1-x-currencyDecimal vtex-product-price-1-x-currencyDecimal--price-pix",
@@ -103,4 +103,3 @@
     }
 
 }
-

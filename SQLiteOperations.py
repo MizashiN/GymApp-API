@@ -17,15 +17,15 @@ class Operations:
             result = self.cursor.fetchone()
             if result:
                 self.list.remove(image_src)
-            
+
         return self.list
+
     def InsertImg(self, image_src, image_blob):
         self.cursor.execute(
             "INSERT INTO IMAGES (image_src, image_blob) VALUES (:image_src, :image_blob)",
-            {"image_src": image_src, "image_blob": image_blob}
+            {"image_src": image_src, "image_blob": image_blob},
         )
-        self.conn.commit()  
-
+        self.conn.commit()
 
     def close(self):
         self.conn.close()
