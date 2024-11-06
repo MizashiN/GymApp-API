@@ -234,6 +234,13 @@ class ProductScrapper(default):
     def InsertImgOnDatabase(self, list_urls):
         if list_urls:
             self.funcs.download_images(list_urls)
+    
+    def VerifyAlteration(self):
+        for product_r in self.product_list
+            title_r, price_r, image_src_r = product_r
+            
+        product_b = self.operation.SelectProduct(image_src_r)
+        if 
 
 
 class MaxTitanium(ProductScrapper):
@@ -288,7 +295,6 @@ class MaxTitanium(ProductScrapper):
 
         return self.fetch_product(urls=urls, **self.config)
 
-
 class Adaptogen(ProductScrapper):
     def __init__(self):
         super().__init__()
@@ -318,7 +324,6 @@ class Adaptogen(ProductScrapper):
         urls = self.getUrls(mapped_category, mapped_subcategory)
 
         return self.fetch_product(urls=urls, **self.config)
-
 
 class DarkLab(ProductScrapper):
     def __init__(self):
@@ -354,7 +359,6 @@ class DarkLab(ProductScrapper):
         urls = self.getUrls(mapped_category, mapped_subcategory)
         return self.fetch_product(urls=urls, **self.config)
 
-
 class GrowthSupp(ProductScrapper):
     def __init__(self):
         super().__init__()
@@ -376,7 +380,6 @@ class GrowthSupp(ProductScrapper):
 
         urls = self.getUrls(mapped_category, mapped_subcategory)
         return self.fetch_product(urls=urls, **self.config)
-
 
 class Darkness(ProductScrapper):
     def __init__(self):
@@ -403,7 +406,6 @@ class Darkness(ProductScrapper):
         urls = self.getUrls(mapped_category, mapped_subcategory)
 
         return self.fetch_product(urls=urls, **self.config)
-
 
 class Mith(ProductScrapper):
     def __init__(self):
@@ -434,7 +436,6 @@ class Mith(ProductScrapper):
 
         return self.fetch_product(urls=urls, **self.config)
 
-
 class All:
     def __init__(self):
         self.brand_instances = [
@@ -457,7 +458,6 @@ class All:
         result = {"totalProducts": len(product_list), "products": product_list}
 
         return result
-
 
 class CategoryMapper:
     def __init__(self):
