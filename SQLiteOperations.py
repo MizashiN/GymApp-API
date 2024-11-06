@@ -12,7 +12,7 @@ class Operations:
 
         for image_src in src_list:
             self.cursor.execute(
-                "SELECT image_src FROM images WHERE image_src = %s", (image_src,)
+                "SELECT image_src FROM images WHERE image_src = ?", (image_src,)
             )
             result = self.cursor.fetchone()
             if result:
@@ -21,17 +21,37 @@ class Operations:
         for image in images_to_remove:
             self.list.remove(image)
         return self.list
-
-    def SelectCategories(self):
-        categories = []
+    
+    def SelectProduct(self, image_src):
+        product_b = []
         self.cursor.execute(
-            "SELECT * FROM categories",
+            """SELECT p.title_product, p.price_product, i.image_src, i.id_image
+            FROM products p
+            JOIN images i ON p.id_image = i.id_image
+            WHERE i.image_src = ?;
+            """, (image_src,)
         )
-        
-        categories = self.cursor.fetchall() 
-        
-        self.close()
-        return categories
+        product_b = self.cursor.fetchall()
+
+        return product_b
+    
+    def UpdateProduct(self, column, value_r, id_image):
+        query = f"UPDATE products SET {column} = ? WHERE id_image = ?"
+        self.cursor.execute(query, (value_r, id_image))
+
+        self.conn.commit()
+    
+    def InsertProduct(self, title, price, image_src, image_blob):
+        self.cursor.execute(
+            "INSERT INTO images (image_src, image_blob) VALUES (?, ?)", (image_src, image_blob)
+        )
+                
+        self.cursor.execute(
+            "INSERT INTO products (title_product, price_product, id_image) SELECT ?, ?, id_image FROM images WHERE image_src = ?", (title, price, image_src)
+        )  
+
+        self.conn.commit()
+    
 
     def close(self):
         if self.cursor:

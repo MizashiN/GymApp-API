@@ -10,33 +10,33 @@ class funcs:
         self.output_path = os.path.join("output_image_path")  # Diretório de saída
         self.operation = Operations()
 
-    def download_images(self, urls):
+    def download_image(self, image_src_url):
         save_directory = "input_image_path"
+        
+        file_name = os.path.basename(image_src_url) + ".png"
+        file_name = file_name.replace("?", "").replace("&", "")
+        save_path = os.path.join(save_directory, file_name)
 
-        for self.url in urls:
-            file_name = os.path.basename(self.url) + ".png"
-            file_name = file_name.replace("?", "").replace("&", "")
-            save_path = os.path.join(save_directory, file_name)
+        try:
+            response = requests.get(image_src_url)
+            if response.status_code == 200:
+                with open(save_path, "wb") as f:
+                    f.write(response.content)
+                print(f"Imagem baixada com sucesso em: {save_path}")
+            else:
+                print(
+                    f"Falha ao fazer o download da imagem {image_src_url}. Código de status: {response.status_code}"
+                )
+        except Exception as e:
+            print(f"Ocorreu um erro ao baixar a imagem {image_src_url}: {e}")
 
-            try:
-                response = requests.get(self.url)
-                if response.status_code == 200:
-                    with open(save_path, "wb") as f:
-                        f.write(response.content)
-                    print(f"Imagem baixada com sucesso em: {save_path}")
-                else:
-                    print(
-                        f"Falha ao fazer o download da imagem {self.url}. Código de status: {response.status_code}"
-                    )
-            except Exception as e:
-                print(f"Ocorreu um erro ao baixar a imagem {self.url}: {e}")
-
-            self.get_icon_img(
-                input_image_path=self.input_path, output_path=self.output_path
-            )
-            self.blob = self.GetBlobImg(path=self.output_path, filename=file_name)
-            self.operation.insert_img(self.url, self.blob)
-            self.DeleteFiles(input_path=self.input_path, output_path=self.output_path)
+        self.get_icon_img(
+            input_image_path=self.input_path, output_path=self.output_path
+        )
+        self.blob = self.GetBlobImg(path=self.output_path, filename=file_name)
+        self.DeleteFiles(input_path=self.input_path, output_path=self.output_path)
+        
+        return self.blob
 
     def get_icon_img(self, input_image_path, output_path):
         # Verifica se o diretório de entrada existe

@@ -1,7 +1,0 @@
-beautifulsoup4==4.12.2
-Flask==2.3.2
-requests-cache==0.9.8
-mysql-connector-python==8.1.0
-Pillow==10.0.0
-requests==2.31.0
-jsonlib-python3==1.6.1

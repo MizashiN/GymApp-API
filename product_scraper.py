@@ -35,6 +35,7 @@ class default:
 
 
 class ProductScrapper(default):
+    
     def fetch_product(
         self,
         urls,
@@ -68,6 +69,7 @@ class ProductScrapper(default):
         alternative_parent_tag="",
         alternative_parent_class="",
     ):
+        self.product_list = []
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
 
@@ -101,15 +103,10 @@ class ProductScrapper(default):
                             if price_scrapp:
                                 price_un = price_scrapp.get_text(strip=True)
                                 price_list.append(price_un)
-                                print(f"Preço encontrado: {price_un}")
                             else:
-                                print(
-                                    f"Warning: Preço não encontrado para {p} no item {idx + 1}."
-                                )
+                                print(f"Warning: Preço não encontrado para {p} no item {idx + 1}.")
                     else:
-                        print(
-                            f"Warning: Preço não encontrado para {p} no item {idx + 1}."
-                        )
+                        print(f"Warning: Preço não encontrado no item {idx + 1}.")
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
@@ -214,33 +211,35 @@ class ProductScrapper(default):
                 extract_product_data(
                     soup, alternative_parent_tag_2, alternative_parent_class_2
                 )
-
+                
         result = {"total": len(self.product_list), "products": self.product_list}
-
-        self.list_img_srcs = []
-        self.list_srcs = []
-
-        self.list_img_srcs = [product.image_src for product in self.product_list]
-        self.list_srcs = self.VerifyImgExists(self.list_img_srcs)
-        if not self.list_srcs == []:
-            self.InsertImgOnDatabase(self.list_srcs)
+        self.VerifyAlteration(self.product_list)
         return result
-
-    def VerifyImgExists(self, list_img_srcs):
-        self.list = self.operation.verify_images(list_img_srcs)
-
-        return self.list
-
-    def InsertImgOnDatabase(self, list_urls):
-        if list_urls:
-            self.funcs.download_images(list_urls)
     
-    def VerifyAlteration(self):
-        for product_r in self.product_list
-            title_r, price_r, image_src_r = product_r
+    def VerifyAlteration(self, product_list):
+        product_b = []
+        for product_r in product_list:
+            image_src_r, price_r, title_r, = product_r.image_src, product_r.price, product_r.title
             
-        product_b = self.operation.SelectProduct(image_src_r)
-        if 
+            price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
+             
+            product_b = self.operation.SelectProduct(image_src_r)
+            
+            if product_b:
+                print(f"Produto {title_r} existe no banco")
+                product = product_b[0]
+                if product[0] != title_r:
+                    print(product[3])
+                    self.operation.UpdateProduct("title_product", title_r, product[3])
+                if product[1] != price_r:
+                    self.operation.UpdateProduct("price_product", price_r, product[3])
+            else:
+                print(f"Inserindo o Produto {title_r}")
+                image_blob_r = self.funcs.download_image(image_src_r)
+                self.operation.InsertProduct(title_r, price_r, image_src_r, image_blob_r)
+                
+            
+        
 
 
 class MaxTitanium(ProductScrapper):
@@ -416,7 +415,7 @@ class Mith(ProductScrapper):
     def getUrls(self, category, subcategory=""):
         if category == "waxy-maize" and not subcategory:
             self.urls = [
-                f"https://www.mithoficial.com.br/waxy%20maize?_q=Waxy%20Maize&map=ft"
+                f"https://www.mithoficial.com.br/carboidratos/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames"
             ]
         else:
             if not subcategory:
@@ -431,7 +430,7 @@ class Mith(ProductScrapper):
         mapped_category, mapped_subcategory = self.mapper.map(
             "Mith", category, subcategory
         )
-
+        print(mapped_category)
         urls = self.getUrls(mapped_category, mapped_subcategory)
 
         return self.fetch_product(urls=urls, **self.config)
