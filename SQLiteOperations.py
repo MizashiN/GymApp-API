@@ -1,35 +1,12 @@
-import mysql.connector
-from mysql.connector import Error
+import sqlite3
 
 
 class Operations:
     def __init__(self):
-        self.conn = None
-        self.cursor = None
-        self.host = "gym-app.mysql.uhserver.com"
-        self.username = "parafalpwladmin"
-        self.password = "@D3adlift"
-        self.database = "gym_app"
-        self.connect()
-
-    def connect(self):
-        try:
-            self.conn = mysql.connector.connect(
-                host=self.host,
-                user=self.username,
-                password=self.password,
-                database=self.database,
-            )
-            if self.conn.is_connected():
-                self.cursor = self.conn.cursor(buffered=True)
-            else:
-                print("Failed to connect to the database.")
-        except Error as e:
-            print(f"Error while connecting to MySQL: {e}")
+        self.conn = sqlite3.connect('database.db')
+        self.cursor = self.conn.cursor()
 
     def verify_images(self, src_list):
-        if self.conn is None or not self.conn.is_connected():
-            self.connect()
         self.list = src_list.copy()
         images_to_remove = []
 
@@ -45,20 +22,16 @@ class Operations:
             self.list.remove(image)
         return self.list
 
-    def insert_img(self, image_src, image_blob):
-        if self.conn is None or not self.conn.is_connected():
-            self.connect()
-
-        try:
-            self.cursor.execute(
-                "INSERT INTO images (image_src, image_blob) VALUES (%s, %s)",
-                (image_src, image_blob),
-            )
-            self.conn.commit()
-        except mysql.connector.OperationalError as e:
-            print(f"Operational error: {e}")
-        except Error as e:
-            print(f"Error: {e}")
+    def SelectCategories(self):
+        categories = []
+        self.cursor.execute(
+            "SELECT * FROM categories",
+        )
+        
+        categories = self.cursor.fetchall() 
+        
+        self.close()
+        return categories
 
     def close(self):
         if self.cursor:
