@@ -420,7 +420,9 @@ class Mith(ProductScrapper):
             if not subcategory:
                 self.urls = [f"https://www.mithoficial.com.br/{category}"]
             else:
-                self.urls = [f"https://www.mithoficial.com.br/{subcategory}/{category}?initialMap=productClusterIds&initialQuery=221&map=category-3,productclusternames"]
+                self.urls = [
+                    f"https://www.mithoficial.com.br/{subcategory}/{category}?initialMap=productClusterIds&initialQuery=221&map=category-3,productclusternames"
+                ]
         return self.urls
 
     def set(self, category, subcategory=""):
