@@ -4,7 +4,7 @@ from MySQLOperations import Operations
 class Commands:
     def __init__(self):
         self.operation = Operations()
-        self.response = Mith()
+        self.response = All()
         
     def Start(self):
         categories = self.operation.SelectCategories()

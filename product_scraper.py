@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from requests_cache import CachedSession
+import requests
 from SQLiteOperations import Operations
 from generic_funcs import funcs
 import json
@@ -182,8 +182,6 @@ class ProductScrapper(default):
                         "Warning: Skipping product item due to missing data (title, price, or image)"
                     )
 
-        session = CachedSession(cache_name="cache/session", expire_after=180)
-
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         }
@@ -191,7 +189,7 @@ class ProductScrapper(default):
         # Loop para as URLs
         for url in urls:
             print(f"Fetching URL: {url}")
-            res = session.get(url, headers=headers)
+            res = requests.get(url, headers=headers)
             print(f"Status Code: {res.status_code}")
 
             if res.status_code != 200:
@@ -236,10 +234,7 @@ class ProductScrapper(default):
             else:
                 print(f"Inserindo o Produto {title_r}")
                 image_blob_r = self.funcs.download_image(image_src_r)
-                self.operation.InsertProduct(title_r, price_r, image_src_r, image_blob_r)
-                
-            
-        
+                self.operation.InsertProduct(title_r, price_r, image_src_r, image_blob_r)        
 
 
 class MaxTitanium(ProductScrapper):
