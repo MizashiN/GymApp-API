@@ -5,6 +5,17 @@ class Operations:
     def __init__(self):
         self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
+        
+    def SelectCategories(self):
+        categories = []
+        self.cursor.execute(
+            "SELECT * FROM categories",
+        )
+        
+        categories = self.cursor.fetchall()
+        
+        return categories
+        
 
     def verify_images(self, src_list):
         self.list = src_list.copy()

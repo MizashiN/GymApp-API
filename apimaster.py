@@ -1,5 +1,5 @@
 from product_scraper import *
-from MySQLOperations import Operations
+from SQLiteOperations import Operations
 
 class Commands:
     def __init__(self):
