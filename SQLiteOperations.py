@@ -2,20 +2,35 @@ import sqlite3
 
 
 class Operations:
-    def __init__(self):
+    def _init_(self):
         self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
     
     
-    def SelectMappedParams(self):
-        Params = []
+    def SelectMappedParams(self, id_category, id_brand, id_subcategory=""):
+        params = []
+        if not id_subcategory:
+            self.cursor.execute(
+                "SELECT mappedparam_category, mappedparam_subcategory FROM mappedparams WHERE id_category = ? AND id_brand = ?",(id_category, id_brand)
+            )
+        else:
+            self.cursor.execute(
+                "SELECT mappedparam_category, mappedparam_subcategory FROM mappedparams WHERE id_category = ? AND id_subcategory = ? AND id_brand = ?",(id_category, id_subcategory, id_brand)
+            )
+        
+        params = self.cursor.fetchall()
+        
+        return params    
+    
+    def SelectUrlProduct(self, id_product):
         self.cursor.execute(
-            "SELECT param_category, param_subcategory FROM mappedParams",
+            "SELECT urlproduct FROM urlsproducts WHERE id_product = ?",(id_product)
         )
         
-        Params = self.cursor.fetchall()
+        result = self.cursor.fetchone()
         
-        return Params    
+        return result    
+    
     
     def SelectBrands(self):
         brands = []
@@ -62,16 +77,16 @@ class Operations:
         return subcategories
 
     
-    def SelectUrls(self, category, subcategory=""):
+    def SelectUrlsBrands(self, category, subcategory=""):
         urls = []
 
-        if not subcategory
+        if not subcategory:
             self.cursor.execute(
-                "SELECT url FROM urlsBrands WHERE id_category = ?",(category)
+                "SELECT url FROM urlsbrands WHERE id_category = ?",(category)
             )
         else:
             self.cursor.execute(
-                "SELECT url FROM urlsBrands WHERE id_category = ? and id_subcategory = ?",(category, subcategory)
+                "SELECT url FROM urlsbrands WHERE id_category = ? AND id_subcategory = ?",(category, subcategory)
             )
         
         urls = self.cursor.fetchall()
