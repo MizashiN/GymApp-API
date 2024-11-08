@@ -5,17 +5,78 @@ class Operations:
     def __init__(self):
         self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
-        
-    def SelectCategories(self):
-        categories = []
+    
+    
+    def SelectMappedParams(self):
+        Params = []
         self.cursor.execute(
-            "SELECT * FROM categories",
+            "SELECT param_category, param_subcategory FROM mappedParams",
         )
         
-        categories = self.cursor.fetchall()
+        Params = self.cursor.fetchall()
         
-        return categories
+        return Params    
+    
+    def SelectBrands(self):
+        brands = []
+        self.cursor.execute(
+            "SELECT brand FROM brands",
+        )
         
+        brands = self.cursor.fetchall()
+        
+        return brands
+
+
+    def SelectConfigBrand(self):
+        config = {}
+        self.cursor.execute(
+            """
+            SELECT
+
+            parent_tag, title_tag, img_tag, price_tag, url_tag,
+            url_attribute, url_base, url_class, price_parent_tag,
+            price_parent_class, price_code, price_integer, price_decimal,
+            price_fraction, img_attribute, parent_class, title_class,
+            price_class, img_class, alt_price_parent_tag,
+            alt_price_parent_class, alt_img_tag, alt_img_class,
+            alt_parent_class_2, alt_img_tag_2, alt_img_class_2,
+            alt_parent_tag_2, alt_parent_tag, alt_parent_class
+
+            FROM configBrands
+            """,
+        )
+        
+        config = self.cursor.fetchall()
+        
+        return config
+
+    def SelectSubcategories(self):
+        subcategories = []
+        self.cursor.execute(
+            "SELECT subcategory FROM subcategories",
+        )
+        
+        subcategories = self.cursor.fetchall()
+        
+        return subcategories
+
+    
+    def SelectUrls(self, category, subcategory=""):
+        urls = []
+
+        if not subcategory
+            self.cursor.execute(
+                "SELECT url FROM urlsBrands WHERE id_category = ?",(category)
+            )
+        else:
+            self.cursor.execute(
+                "SELECT url FROM urlsBrands WHERE id_category = ? and id_subcategory = ?",(category, subcategory)
+            )
+        
+        urls = self.cursor.fetchall()
+        
+        return urls
 
     def verify_images(self, src_list):
         self.list = src_list.copy()
