@@ -1,4 +1,4 @@
-import requests
+    import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 import os
@@ -69,6 +69,8 @@ class ProductScrapper(default):
             price = ""
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
+                if not title:
+                    print("title not found")
 
                 price_list = []
                 if (
@@ -119,9 +121,7 @@ class ProductScrapper(default):
                     print(parent_item)
                     if parent_item:
                         link_product = parent_item.find(url_tag, class_=url_class)
-                        if link_product:
-                            print(f"Link do produto encontrado no pai: {link_product}")
-                        else:
+                        if not link_product:
                             print("Warning: href não encontrado no elemento pai.")
                     else:
                         print("Warning: Elemento pai não encontrado.")
@@ -158,6 +158,9 @@ class ProductScrapper(default):
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
 
+                    if title_text and image_src and url_product and price_text:
+                        print(f"Scrapping Success {title_text}")
+
                     self.product_list.append(
                         ProductData(
                             title=title_text,
@@ -168,7 +171,7 @@ class ProductScrapper(default):
                     )
                 else:
                     print(
-                        "Warning: Skipping product item due to missing data (title, price, or image)"
+                        "Warning: Skipping product item due to missing data (title, price, image ,url or image)"
                     )
 
         headers = {
@@ -342,6 +345,7 @@ class ProductScrapper(default):
         # Salva os dados em um arquivo JSON
         with open(file_name, "w") as json_file:
             json.dump(product_data, json_file, indent=4)
+
 
         print(f"Os dados do teste '{test_name}' foram salvos em '{file_name}'.")
 
