@@ -1,4 +1,4 @@
-    import requests
+import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 import os
@@ -21,7 +21,7 @@ class default:
 
 
 class ProductConfig:
-    def __init__(self, config_file="json/config.json"):
+    def __init__(self, config_file="testScrapp/config.json"):
         with open(config_file, "r") as f:
             self.config = json.load(f)
 
@@ -68,9 +68,9 @@ class ProductScrapper(default):
 
             price = ""
             for idx, product_info in enumerate(product_items):
-                title = product_info.find(title_tag, class_=title_class)
-                if not title:
-                    print("title not found")
+                title = product_info.find(title_tag, class_=title_class) 
+                
+                print(title)
 
                 price_list = []
                 if (
@@ -98,36 +98,41 @@ class ProductScrapper(default):
                                 price_list.append(price_un)
                             else:
                                 print(
-                                    f"Warning: Preço não encontrado para {p} no item {idx + 1}."
+                                    f"Warning: Preço não encontrado para não encontrado ."
                                 )
                     else:
-                        print(f"Warning: Preço não encontrado no item {idx + 1}.")
+                        print(f"Warning: Preço não encontrado{idx + 1}.")
 
                 else:
-                    price = product_info.find(price_tag, class_=price_class)
+                    price = product_info.find(price_tag, class_=price_class) if price else ""
 
                 image = product_info.find(img_tag, class_=img_class)
-
+                
                 if not image:
                     print("Warning: Primary image not found, trying alt tag and class")
                     image = product_info.find(
                         alt_img_tag, class_=alt_img_class
                     ) or product_info.find(alt_img_tag_2, class_=alt_img_class_2)
+                
+                print(image)
 
                 link_product = product_info.find(url_tag, url_class)
+                if link_product == None:
+                    link_product = ""
 
                 if not link_product:
                     parent_item = product_info.find_parent()
-                    print(parent_item)
                     if parent_item:
                         link_product = parent_item.find(url_tag, class_=url_class)
                         if not link_product:
                             print("Warning: href não encontrado no elemento pai.")
                     else:
                         print("Warning: Elemento pai não encontrado.")
+                print(link_product)
 
                 if title and image and link_product and (price or price_list):
                     title_text = title.get_text(strip=True)
+                    print(title_text)
                     if price:
                         price_text = (
                             price.get_text(strip=True)
@@ -144,7 +149,9 @@ class ProductScrapper(default):
                         ).strip()
                     if price_list:
                         price_text = "".join(price_list).replace("R$", "R$ ")
-
+                    
+                    print(price_text)
+                    
                     url_product = link_product.get(url_attribute)
                     pos = -1
                     if url_base:
@@ -153,13 +160,18 @@ class ProductScrapper(default):
 
                     if pos != -1:
                         url_product = url_product[pos:]
+                        
+                    print(url_product)
 
                     image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
+                    print(image_src)
+                        
 
+                    
                     if title_text and image_src and url_product and price_text:
-                        print(f"Scrapping Success {title_text}")
+                        print("Scrapping Success")
 
                     self.product_list.append(
                         ProductData(
@@ -171,8 +183,9 @@ class ProductScrapper(default):
                     )
                 else:
                     print(
-                        "Warning: Skipping product item due to missing data (title, price, image ,url or image)"
+                        "Warning: Skipping product item due to missing data (title, price, or image or link product)"
                     )
+
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -198,190 +211,7 @@ class ProductScrapper(default):
         result = {"total": len(self.product_list), "products": self.product_list}
         return result
 
-    def fetch_product_input(self):
-        test_name = input("Digite o nome do teste: ")
-        parent_tag = input("Digite a tag pai (parent_tag): ")
-        parent_class = (
-            input("Digite a classe do elemento pai (parent_class) [opcional]: ") or ""
-        )
-
-        title_class = (
-            input("Digite a classe do título (title_class) [opcional]: ") or ""
-        )
-        title_tag = input("Digite a tag de título (title_tag): ")
-        price_tag = input("Digite a tag de preço (price_tag): ")
-        price_class = input("Digite a classe do preço (price_class) [opcional]: ") or ""
-        img_tag = input("Digite a tag de imagem (img_tag): ")
-        img_class = input("Digite a classe da imagem (img_class) [opcional]: ") or ""
-        img_attribute = (
-            input("Digite o atributo da imagem (img_attribute) [opcional]: ") or ""
-        )
-        url_test = input("Digite a URL de teste: ")
-
-        url_tag = input("Digite a tag para o URL (url_tag) [opcional]: ") or ""
-        url_class = input("Digite a classe do URL (url_class) [opcional]: ") or ""
-        url_attribute = (
-            input("Digite o atributo do URL (url_attribute) [opcional]: ") or ""
-        )
-        url_base = input("Digite a base do URL (url_base) [opcional]: ") or ""
-
-        price_parent_tag = (
-            input("Digite a tag pai do preço (price_parent_tag) [opcional]: ") or ""
-        )
-        price_parent_class = (
-            input("Digite a classe pai do preço (price_parent_class) [opcional]: ")
-            or ""
-        )
-        price_code = input("Digite o código do preço (price_code) [opcional]: ") or ""
-        price_integer = (
-            input("Digite a parte inteira do preço (price_integer) [opcional]: ") or ""
-        )
-        price_decimal = (
-            input("Digite a parte decimal do preço (price_decimal) [opcional]: ") or ""
-        )
-        price_fraction = (
-            input("Digite a fração do preço (price_fraction) [opcional]: ") or ""
-        )
-
-        alt_price_parent_tag = (
-            input(
-                "Digite a tag alternativa do preço (alt_price_parent_tag) [opcional]: "
-            )
-            or ""
-        )
-        alt_price_parent_class = (
-            input(
-                "Digite a classe alternativa do preço (alt_price_parent_class) [opcional]: "
-            )
-            or ""
-        )
-        alt_img_tag = (
-            input("Digite a tag alternativa da imagem (alt_img_tag) [opcional]: ") or ""
-        )
-        alt_img_class = (
-            input("Digite a classe alternativa da imagem (alt_img_class) [opcional]: ")
-            or ""
-        )
-
-        alt_parent_class_2 = (
-            input(
-                "Digite a segunda classe alternativa do elemento pai (alt_parent_class_2) [opcional]: "
-            )
-            or ""
-        )
-        alt_img_tag_2 = (
-            input(
-                "Digite a segunda tag alternativa da imagem (alt_img_tag_2) [opcional]: "
-            )
-            or ""
-        )
-        alt_img_class_2 = (
-            input(
-                "Digite a segunda classe alternativa da imagem (alt_img_class_2) [opcional]: "
-            )
-            or ""
-        )
-        alt_parent_tag_2 = (
-            input(
-                "Digite a segunda tag alternativa do elemento pai (alt_parent_tag_2) [opcional]: "
-            )
-            or ""
-        )
-        alt_parent_tag = (
-            input(
-                "Digite a tag alternativa do elemento pai (alt_parent_tag) [opcional]: "
-            )
-            or ""
-        )
-        alt_parent_class = (
-            input(
-                "Digite a classe alternativa do elemento pai (alt_parent_class) [opcional]: "
-            )
-            or ""
-        )
-
-        product_data = {
-            "test_name": test_name,
-            "url_test": url_test,
-            "parent_tag": parent_tag,
-            "title_tag": title_tag,
-            "img_tag": img_tag,
-            "price_tag": price_tag,
-            "url_tag": url_tag,
-            "url_attribute": url_attribute,
-            "url_base": url_base,
-            "url_class": url_class,
-            "price_parent_tag": price_parent_tag,
-            "price_parent_class": price_parent_class,
-            "price_code": price_code,
-            "price_integer": price_integer,
-            "price_decimal": price_decimal,
-            "price_fraction": price_fraction,
-            "img_attribute": img_attribute,
-            "parent_class": parent_class,
-            "title_class": title_class,
-            "price_class": price_class,
-            "img_class": img_class,
-            "alt_price_parent_tag": alt_price_parent_tag,
-            "alt_price_parent_class": alt_price_parent_class,
-            "alt_img_tag": alt_img_tag,
-            "alt_img_class": alt_img_class,
-            "alt_parent_class_2": alt_parent_class_2,
-            "alt_img_tag_2": alt_img_tag_2,
-            "alt_img_class_2": alt_img_class_2,
-            "alt_parent_tag_2": alt_parent_tag_2,
-            "alt_parent_tag": alt_parent_tag,
-            "alt_parent_class": alt_parent_class,
-        }
-
-        # Salva os dados em um arquivo JSON
-        folder_name = "testScrapp"
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-
-        # Define o caminho do arquivo JSON
-        file_name = os.path.join(folder_name, f"{test_name}_data.json")
-
-        # Salva os dados em um arquivo JSON
-        with open(file_name, "w") as json_file:
-            json.dump(product_data, json_file, indent=4)
-
-
-        print(f"Os dados do teste '{test_name}' foram salvos em '{file_name}'.")
-
-        self.fetch_product(
-            url_test,
-            parent_tag,
-            title_tag,
-            img_tag,
-            price_tag,
-            url_tag,
-            url_attribute,
-            url_base,
-            url_class,
-            price_parent_tag,
-            price_parent_class,
-            price_code,
-            price_integer,
-            price_decimal,
-            price_fraction,
-            img_attribute,
-            parent_class,
-            title_class,
-            price_class,
-            img_class,
-            alt_price_parent_tag,
-            alt_price_parent_class,
-            alt_img_tag,
-            alt_img_class,
-            alt_parent_class_2,
-            alt_img_tag_2,
-            alt_img_class_2,
-            alt_parent_tag_2,
-            alt_parent_tag,
-            alt_parent_class,
-        )
-
-
 run = ProductScrapper()
-run.fetch_product_input()
+config = ProductConfig()
+
+run.fetch_product(**config.config)
