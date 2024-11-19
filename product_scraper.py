@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from requests_cache import CachedSession
+import requests
 from SQLiteOperations import Operations
 from generic_funcs import funcs
 import json
@@ -20,13 +20,12 @@ class ProductConfig:
         with open(config_file, "r") as f:
             self.config = json.load(f)
 
-    def get_config(self, brand):
-        return self.config.get(brand, {})
+    def get_config(self):
+        return self.config
 
 
 class default:
     def __init__(self):
-        self.mapper = CategoryMapper()
         self.operation = Operations()
         self.funcs = funcs()
         self.urls = []
@@ -35,9 +34,10 @@ class default:
 
 
 class ProductScrapper(default):
+
     def fetch_product(
         self,
-        urls,
+        url_test,
         parent_tag,
         title_tag,
         img_tag,
@@ -57,21 +57,22 @@ class ProductScrapper(default):
         title_class="",
         price_class="",
         img_class="",
-        alternative_price_parent_tag="",
-        alternative_price_parent_class="",
-        alternative_img_tag="",
-        alternative_img_class="",
-        alternative_parent_class_2="",
-        alternative_img_tag_2="",
-        alternative_img_class_2="",
-        alternative_parent_tag_2="",
-        alternative_parent_tag="",
-        alternative_parent_class="",
+        alt_price_parent_tag="",
+        alt_price_parent_class="",
+        alt_img_tag="",
+        alt_img_class="",
+        alt_parent_class_2="",
+        alt_img_tag_2="",
+        alt_img_class_2="",
+        alt_parent_tag_2="",
+        alt_parent_tag="",
+        alt_parent_class="",
     ):
+        self.product_list = []
+
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
 
-            price = ""
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
 
@@ -92,24 +93,19 @@ class ProductScrapper(default):
 
                     price_items = product_info.find(
                         price_parent_tag, class_=price_parent_class
-                    ) or product_info.find(
-                        alternative_price_parent_tag, alternative_price_parent_class
-                    )
+                    ) or product_info.find(alt_price_parent_tag, alt_price_parent_class)
                     if price_items:
                         for p in price_separated:
                             price_scrapp = price_items.find(price_tag, class_=p)
                             if price_scrapp:
                                 price_un = price_scrapp.get_text(strip=True)
                                 price_list.append(price_un)
-                                print(f"Preço encontrado: {price_un}")
                             else:
                                 print(
                                     f"Warning: Preço não encontrado para {p} no item {idx + 1}."
                                 )
                     else:
-                        print(
-                            f"Warning: Preço não encontrado para {p} no item {idx + 1}."
-                        )
+                        print(f"Warning: Preço não encontrado no item {idx + 1}.")
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
@@ -117,20 +113,15 @@ class ProductScrapper(default):
                 image = product_info.find(img_tag, class_=img_class)
 
                 if not image:
-                    print(
-                        "Warning: Primary image not found, trying alternative tag and class"
-                    )
+                    print("Warning: Primary image not found, trying alt tag and class")
                     image = product_info.find(
-                        alternative_img_tag, class_=alternative_img_class
-                    ) or product_info.find(
-                        alternative_img_tag_2, class_=alternative_img_class_2
-                    )
+                        alt_img_tag, class_=alt_img_class
+                    ) or product_info.find(alt_img_tag_2, class_=alt_img_class_2)
 
                 link_product = product_info.find(url_tag, url_class)
 
                 if not link_product:
                     parent_item = product_info.find_parent()
-                    print(parent_item)
                     if parent_item:
                         link_product = parent_item.find(url_tag, class_=url_class)
                         if link_product:
@@ -172,6 +163,15 @@ class ProductScrapper(default):
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
 
+                    if title_text and price_text and image_src and url_product:
+                        print("Success Scrapping")
+                        list_product = []
+                        list_product = [title_text, price_text, image_src, url_product]
+
+                        for l in list_product:
+                            print(l)
+                        print("-" * 10)
+
                     self.product_list.append(
                         ProductData(
                             title=title_text,
@@ -185,381 +185,76 @@ class ProductScrapper(default):
                         "Warning: Skipping product item due to missing data (title, price, or image)"
                     )
 
-        session = CachedSession(cache_name="cache/session", expire_after=180)
-
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         }
 
         # Loop para as URLs
-        for url in urls:
-            print(f"Fetching URL: {url}")
-            res = session.get(url, headers=headers)
-            print(f"Status Code: {res.status_code}")
+        res = requests.get(url_test, headers=headers)
+        print(f"Status Code: {res.status_code}")
+        print("-" * 10)
 
-            if res.status_code != 200:
-                print(f"Failed to fetch URL: {url} with status code {res.status_code}")
-                continue
+        if res.status_code != 200:
+            print(f"Failed to fetch URL: {url_test} with status code {res.status_code}")
 
-            soup = BeautifulSoup(res.content, "html.parser")
+        soup = BeautifulSoup(res.content, "html.parser")
 
-            extract_product_data(soup, parent_tag, parent_class)
+        extract_product_data(soup, parent_tag, parent_class)
 
-            if alternative_parent_tag and alternative_parent_class:
-                extract_product_data(
-                    soup, alternative_parent_tag, alternative_parent_class
-                )
+        if alt_parent_tag and alt_parent_class:
+            extract_product_data(soup, alt_parent_tag, alt_parent_class)
 
-            if alternative_parent_tag_2 and alternative_parent_class_2:
-                extract_product_data(
-                    soup, alternative_parent_tag_2, alternative_parent_class_2
-                )
+        if alt_parent_tag_2 and alt_parent_class_2:
+            extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
 
         result = {"total": len(self.product_list), "products": self.product_list}
-
-        self.list_img_srcs = []
-        self.list_srcs = []
-
-        self.list_img_srcs = [product.image_src for product in self.product_list]
-        self.list_srcs = self.VerifyImgExists(self.list_img_srcs)
-        if not self.list_srcs == []:
-            self.InsertImgOnDatabase(self.list_srcs)
-        return result
-
-    def VerifyImgExists(self, list_img_srcs):
-        self.list = self.operation.verify_images(list_img_srcs)
-
-        return self.list
-
-    def InsertImgOnDatabase(self, list_urls):
-        if list_urls:
-            self.funcs.download_images(list_urls)
+        # self.VerifyAlteration(self.product_url
+    
 
 
-class MaxTitanium(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "MaxTitanium"
-        self.config = ProductConfig().get_config(self.name)
+    def InsertConfig(se)
 
-    def getUrls(self, category, subcategory=""):
-        if category == "proteinas" and not subcategory:
-            self.urls = [
-                "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=concentrada",
-                "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=3w",
-                "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=blend-de-proteinas",
-                "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=proteina-vegetal",
-                "https://www.maxtitanium.com.br/produtos/proteinas?filter.category-1=produtos&filter.category-2=proteinas&filter.category-3=isolada",
-            ]
 
-        elif category == "aminoacidos" and not subcategory:
-            self.urls = [
-                "https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2=aminoacidos&filter.category-3=creatina",
-                "https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2=aminoacidos&filter.category-3=bcaa",
-                "https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2=aminoacidos&filter.category-3=colageno",
-                "https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2=aminoacidos&filter.category-3=arginina",
-                "https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2=aminoacidos&filter.category-3=glutamina",
-            ]
-        elif category == "creatina" and not subcategory:
-            self.urls = [
-                f"https://www.maxtitanium.com.br/produtos/aminoacidos/{category}"
-            ]
 
-        else:
-            if not subcategory:
-                self.urls = [
-                    f"https://www.maxtitanium.com.br/{category}",
-                    f"https://www.maxtitanium.com.br/produtos/{category}",
-                    f"https://www.maxtitanium.com.br/produtos?filter.category-1=produtos&filter.category-2={category}",
-                    f"https://www.maxtitanium.com.br/s?q={category}",
-                ]
+    def VerifyAlteration(self, product_list):
+        product_b = []
+        for product_r in product_list:
+            (
+                image_src_r,
+                price_r,
+                title_r,
+                url_r,
+            ) = (
+                product_r.image_src,
+                product_r.price,
+                product_r.title,
+                product_r.url,
+            )
+
+            price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
+
+            product_b = self.operation.SelectProduct(image_src_r)
+
+            if product_b:
+                print(f"Produto {title_r} existe no banco")
+                product = product_b[0]
+                if product[0] != title_r:
+                    print(product[3])
+                    self.operation.UpdateProduct("title_product", title_r, product[3])
+                if product[1] != price_r:
+                    self.operation.UpdateProduct("price_product", price_r, product[3])
+                if product[2] != url_r:
+                    self.operation.UpdateProduct("url_product", url_r, product[3])
             else:
-                self.urls = [
-                    f"https://www.maxtitanium.com.br/produtos/{category}?filter.category-1=produtos&filter.category-2={category}&filter.category-3={subcategory}"
-                ]
-        return self.urls
+                print(f"Inserindo o Produto {title_r}")
+                image_blob_r = self.funcs.download_image(image_src_r)
+                self.operation.InsertProduct(
+                    title_r, price_r, image_src_r, url_r, image_blob_r,
+                )
 
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "MaxTitanium", category, subcategory
-        )
+run = ProductScrapper()
+config = ProductConfig()
 
-        urls = self.getUrls(mapped_category, mapped_subcategory)
+product_config = config.get_config()
 
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class Adaptogen(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "Adaptogen"
-        self.config = ProductConfig().get_config(self.name)
-
-    def getUrls(self, category, subcategory=""):
-        if subcategory == "whey-protein" and category:
-            self.urls = [
-                "https://adaptogen.com.br/proteinas/whey-protein-3w/",
-                "https://adaptogen.com.br/proteinas/whey-protein-concentrada-proteinas/",
-                "https://adaptogen.com.br/proteinas/whey-protein-isolado-e-hidrolisada",
-            ]
-
-        else:
-            if not subcategory:
-                self.urls = [f"https://adaptogen.com.br/{category}/"]
-            else:
-                self.urls = [f"https://adaptogen.com.br/{category}/{subcategory}/"]
-        return self.urls
-
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "Adaptogen", category, subcategory
-        )
-
-        urls = self.getUrls(mapped_category, mapped_subcategory)
-
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class DarkLab(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "DarkLab"
-        self.config = ProductConfig().get_config(self.name)
-
-    def getUrls(self, category, subcategory=""):
-        if category == "aminoacidos" and not subcategory:
-            self.urls = [
-                f"https://darklabsuplementos.com.br/aminoacidos/bcaa",
-                f"https://darklabsuplementos.com.br/aminoacidos/alanina",
-                f"https://darklabsuplementos.com.br/aminoacidos/creatina",
-                f"https://darklabsuplementos.com.br/aminoacidos/glutamina",
-                f"https://darklabsuplementos.com.br/aminoacidos/l-carnitina",
-                f"https://darklabsuplementos.com.br/aminoacidos/colageno",
-            ]
-        else:
-            if not subcategory:
-                self.urls = [f"https://darklabsuplementos.com.br/{category}/?mpage=2"]
-            else:
-                self.urls = [
-                    f"https://darklabsuplementos.com.br/{category}/{subcategory}/"
-                ]
-
-        return self.urls
-
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "DarkLab", category, subcategory
-        )
-
-        urls = self.getUrls(mapped_category, mapped_subcategory)
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class GrowthSupp(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "GrowthSupp"
-        self.config = ProductConfig().get_config(self.name)
-
-    def getUrls(self, category, subcategory=""):
-        i = 1
-        while True:
-            self.urls = [f"https://www.gsuplementos.com.br/{category}/?pg={i}"]
-            i += 1
-
-            return self.urls
-
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "GrowthSupp", category, subcategory
-        )
-
-        urls = self.getUrls(mapped_category, mapped_subcategory)
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class Darkness(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "Darkness"
-        self.config = ProductConfig().get_config(self.name)
-
-    def getUrls(self, category, subcategory=""):
-        if not subcategory:
-            self.urls = [
-                f"https://www.darkness.com.br/{category}",
-                f"https://www.darkness.com.br/{category}?page=2",
-                f"https://www.darkness.com.br/{category}?page=3",
-            ]
-        else:
-            self.urls = [f"https://www.darkness.com.br/{category}/{subcategory}"]
-        return self.urls
-
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "Darkness", category, subcategory
-        )
-
-        urls = self.getUrls(mapped_category, mapped_subcategory)
-
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class Mith(ProductScrapper):
-    def __init__(self):
-        super().__init__()
-        self.name = "Mith"
-        self.config = ProductConfig().get_config(self.name)
-
-    def getUrls(self, category, subcategory=""):
-        if category == "waxy-maize" and not subcategory:
-            self.urls = [
-                f"https://www.mithoficial.com.br/waxy%20maize?_q=Waxy%20Maize&map=ft"
-            ]
-        else:
-            if not subcategory:
-                self.urls = [f"https://www.mithoficial.com.br/{category}"]
-            else:
-                self.urls = [
-                    f"https://www.mithoficial.com.br/{subcategory}/{category}?initialMap=productClusterIds&initialQuery=221&map=category-3,productclusternames"
-                ]
-        return self.urls
-
-    def set(self, category, subcategory=""):
-        mapped_category, mapped_subcategory = self.mapper.map(
-            "Mith", category, subcategory
-        )
-
-        urls = self.getUrls(mapped_category, mapped_subcategory)
-
-        return self.fetch_product(urls=urls, **self.config)
-
-
-class All:
-    def __init__(self):
-        self.brand_instances = [
-            Adaptogen(),
-            MaxTitanium(),
-            DarkLab(),
-            Darkness(),
-            Mith(),
-        ]
-
-    def set(self, category, subcategory=""):
-        product_list = []  # Reinicializa a lista para evitar duplicação
-        total = 0
-
-        for brand_instance in self.brand_instances:
-            brand_products = brand_instance.set(category, subcategory)
-            if brand_products and "products" in brand_products:
-                product_list.extend(brand_products["products"])
-
-        result = {"totalProducts": len(product_list), "products": product_list}
-
-        return result
-
-
-class CategoryMapper:
-    def __init__(self):
-        super().__init__()
-        self.params = {}
-
-    def map(self, brand_name, category, subcategory=""):
-        self.params = self.paramStorage(brand_name)
-        mapped_category = self.params.get(category, category)
-        mapped_subcategory = (
-            self.params.get(subcategory, subcategory) if subcategory else ""
-        )
-
-        return mapped_category, mapped_subcategory
-
-    def paramStorage(self, brand_name):
-        params_map = {
-            "MaxTitanium": {
-                "proteins": "proteinas",
-                "products": "produtos",
-                "aminoacids": "aminoacidos",
-                "pre-workouts": "pre-treino",
-                "whey-proteins": "whey-protein",
-                "creatines": "creatina",
-                "hypercalorics": "hipercaloricos",
-                "protein-bars": "barras-proteicas",
-                "clothes": "roupas",
-                "shakers": "coqueteleiras",
-                "t-shirts": "camisetas",
-                "vitamins": "vitaminas-e-minerais",
-                "thermogenics": "termogenicos",
-                "carbohydrates": "carboidratos",  # SubCategoria, Precisa da Categoria Produtos
-            },
-            "Adaptogen": {
-                "proteins": "proteinas",
-                "products": "produtos",
-                "aminoacids": "aminoacidos",
-                "pre-workouts": "pre-treino-formulas",
-                "whey-proteins": "whey-protein",
-                "creatines": "creatina",
-                "hypercalorics": "hipercaloricos",
-                "protein-bars": "barras-de-proteinas",
-                "clothes": "roupas",
-                "shakers": "coqueteleira",
-                "t-shirts": "camisetas",
-                "vitamins": "vitaminas-e-nutrientes",
-                "thermogenics": "termogenico",
-                "carbohydrates": "carboidratos",
-            },
-            "DarkLab": {
-                "proteins": "proteinas",
-                "products": "produtos",
-                "aminoacids": "aminoacidos",
-                "pre-workouts": "pre-treino1",
-                "whey-proteins": "whey-protein",
-                "creatines": "creatina",
-                "hypercalorics": "waxy-maize",
-                "protein-bars": "barras-de-proteinas",
-                "clothes": "vestuario2",
-                "shakers": "coqueteleira",
-                "t-shirts": "camisetas",
-                "vitamins": "vitaminas",
-                "thermogenics": "termogenico",
-                "carbohydrates": "carboidratos",
-                "acessories": "acessorios",
-            },
-            "Darkness": {
-                "proteins": "proteina",
-                "products": "produtos",
-                "aminoacids": "aminoacidos",
-                "pre-workouts": "pre-treino",
-                "whey-proteins": "whey-protein",
-                "creatines": "creatina",
-                "hypercalorics": "hipercalorico",
-                "protein-bars": "barra-de-proteina",
-                "clothes": "moda",
-                "shakers": "coqueteleira",
-                "t-shirts": "camisetas",
-                "vitamins": "vitaminas",
-                "thermogenics": "termogenico",
-                "carbohydrates": "carboidratos",
-                "acessories": "acessorios",
-            },
-            "Mith": {
-                "proteins": "proteinas-whey-protein",
-                "products": "suplementos",
-                "aminoacids": "aminoacidos",
-                "pre-workouts": "pre-treino",
-                "whey-proteins": "proteinas-whey-protein",
-                "creatines": "creatina",
-                "hypercalorics": "hipercalorico",
-                "protein-bars": "barra-de-proteina",
-                "clothes": "moda",
-                "shakers": "coqueteleiras-mith",
-                "t-shirts": "camisetas",
-                "vitamins": "vitaminas",
-                "thermogenics": "termogenico",
-                "carbohydrates": "waxy-maize",
-                "acessories": "acessorios",
-                "kits": "kits-promocionais",
-            },
-        }
-
-        self.params = params_map.get(brand_name, {})
-        return self.params
+run.fetch_product(**product_config)
