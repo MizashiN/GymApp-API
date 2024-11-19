@@ -73,7 +73,6 @@ class ProductScrapper(default):
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
 
-            price = ""
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
 
@@ -209,8 +208,13 @@ class ProductScrapper(default):
             extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
 
         result = {"total": len(self.product_list), "products": self.product_list}
-        # self.VerifyAlteration(self.product_list)
-        return result
+        # self.VerifyAlteration(self.product_url
+    
+
+
+    def InsertConfig(se)
+
+
 
     def VerifyAlteration(self, product_list):
         product_b = []
@@ -219,10 +223,12 @@ class ProductScrapper(default):
                 image_src_r,
                 price_r,
                 title_r,
+                url_r,
             ) = (
                 product_r.image_src,
                 product_r.price,
                 product_r.title,
+                product_r.url,
             )
 
             price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
@@ -237,13 +243,14 @@ class ProductScrapper(default):
                     self.operation.UpdateProduct("title_product", title_r, product[3])
                 if product[1] != price_r:
                     self.operation.UpdateProduct("price_product", price_r, product[3])
+                if product[2] != url_r:
+                    self.operation.UpdateProduct("url_product", url_r, product[3])
             else:
                 print(f"Inserindo o Produto {title_r}")
                 image_blob_r = self.funcs.download_image(image_src_r)
                 self.operation.InsertProduct(
-                    title_r, price_r, image_src_r, image_blob_r
+                    title_r, price_r, image_src_r, url_r, image_blob_r,
                 )
-
 
 run = ProductScrapper()
 config = ProductConfig()
