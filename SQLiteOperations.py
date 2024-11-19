@@ -6,22 +6,7 @@ class Operations:
         self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
     
-    
-    def SelectMappedParams(self, id_category, id_brand, id_subcategory=""):
-        params = []
-        if not id_subcategory:
-            self.cursor.execute(
-                "SELECT mappedparam_category, mappedparam_subcategory FROM mappedparams WHERE id_category = ? AND id_brand = ?",(id_category, id_brand)
-            )
-        else:
-            self.cursor.execute(
-                "SELECT mappedparam_category, mappedparam_subcategory FROM mappedparams WHERE id_category = ? AND id_subcategory = ? AND id_brand = ?",(id_category, id_subcategory, id_brand)
-            )
-        
-        params = self.cursor.fetchall()
-        
-        return params    
-    
+
     def SelectUrlProduct(self, id_product):
         self.cursor.execute(
             "SELECT urlproduct FROM urlsproducts WHERE id_product = ?",(id_product)
@@ -30,18 +15,6 @@ class Operations:
         result = self.cursor.fetchone()
         
         return result    
-    
-    
-    def SelectBrands(self):
-        brands = []
-        self.cursor.execute(
-            "SELECT brand FROM brands",
-        )
-        
-        brands = self.cursor.fetchall()
-        
-        return brands
-
 
     def SelectConfigBrand(self):
         config = {}
@@ -65,16 +38,6 @@ class Operations:
         config = self.cursor.fetchall()
         
         return config
-
-    def SelectSubcategories(self):
-        subcategories = []
-        self.cursor.execute(
-            "SELECT subcategory FROM subcategories",
-        )
-        
-        subcategories = self.cursor.fetchall()
-        
-        return subcategories
 
     
     def SelectUrlsBrands(self, category, subcategory=""):
@@ -112,7 +75,7 @@ class Operations:
     def SelectProduct(self, image_src):
         product_b = []
         self.cursor.execute(
-            """SELECT p.title_product, p.price_product, i.image_src, i.id_image
+            """SELECT p.title_product, p.price_product, p.url_product, i.image_src, i.id_image
             FROM products p
             JOIN images i ON p.id_image = i.id_image
             WHERE i.image_src = ?;
@@ -128,13 +91,13 @@ class Operations:
 
         self.conn.commit()
     
-    def InsertProduct(self, title, price, image_src, image_blob):
+    def InsertProduct(self, title, price, image_src, url_product ,image_blob):
         self.cursor.execute(
             "INSERT INTO images (image_src, image_blob) VALUES (?, ?)", (image_src, image_blob)
         )
                 
         self.cursor.execute(
-            "INSERT INTO products (title_product, price_product, id_image) SELECT ?, ?, id_image FROM images WHERE image_src = ?", (title, price, image_src)
+            "INSERT INTO products (title_product, price_product, url_product, id_image) SELECT ?, ?, ?, id_image FROM images WHERE image_src = ?", (title, price, image_src, url_product)
         )  
 
         self.conn.commit()
