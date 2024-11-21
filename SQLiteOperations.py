@@ -2,7 +2,7 @@ import sqlite3
 
 
 class Operations:
-    def _init_(self):
+    def __init__(self):
         self.conn = sqlite3.connect('database.db')
         self.cursor = self.conn.cursor()
     
@@ -16,8 +16,10 @@ class Operations:
         
         return result    
 
-    def SelectConfigBrand(self):
-        config = {}
+    def SelectConfigCompany(self):
+        
+        configcompany = {}
+        
         self.cursor.execute(
             """
             SELECT
@@ -31,13 +33,37 @@ class Operations:
             alt_parent_class_2, alt_img_tag_2, alt_img_class_2,
             alt_parent_tag_2, alt_parent_tag, alt_parent_class
 
-            FROM configBrands
+            FROM configcompanies
             """,
         )
-        
+
         config = self.cursor.fetchall()
         
-        return config
+        for i, a in enumerate(self.cursor.description):
+            configcompany[a[0]] = [line[i] for line in config]
+            
+            value = configcompany[a[0]]
+            
+            value_str = str(value[0]) 
+            
+            configcompany[a[0]] = value_str.replace("['", "'").replace("']", "'")
+            configcompany[a[0]] = value_str.replace("None", "")
+                        
+        return configcompany
+    
+    def InsertConfigCompany(self):
+        self.cursor.execute("""
+            INSERT INTO configcompanies
+            
+            (id_company, id_url, parent_tag, title_tag, img_tag, price_tag, url_tag, url_attribute,
+            url_base, url_class, url_test, price_parent_tag, price_parent_class, price_code, price_integer, 
+            price_decimal, price_fraction, img_attribute, parent_class, title_class, price_class, img_class,
+            alt_price_parent_tag, alt_price_parent_class, alt_img_tag, alt_img_class, alt_parent_class_2, 
+            alt_img_tag_2, alt_img_class_2, alt_parent_tag_2, alt_parent_tag, alt_parent_class)
+            
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            
+        """)
 
     
     def SelectUrlsBrands(self, category, subcategory=""):
@@ -91,7 +117,7 @@ class Operations:
 
         self.conn.commit()
     
-    def InsertProduct(self, title, price, image_src, url_product ,image_blob):
+    def InsertProduct(self, title, price, url_product ,image_src, image_blob):
         self.cursor.execute(
             "INSERT INTO images (image_src, image_blob) VALUES (?, ?)", (image_src, image_blob)
         )
@@ -108,3 +134,8 @@ class Operations:
             self.cursor.close()
         if self.conn:
             self.conn.close()
+        
+
+run = Operations()
+
+run.SelectConfigBrand()

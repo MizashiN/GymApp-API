@@ -1,5 +1,12 @@
 {
   "parent_tag": "section",
+  "urls": [
+    "https://www.mithoficial.com.br/proteinas-whey-protein/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames",
+    "https://www.mithoficial.com.br/aminoacidos/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames",
+    "https://www.mithoficial.com.br/pre-treino/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames",
+    "https://www.mithoficial.com.br/carboidratos/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames",
+    "https://www.mithoficial.com.br/vitaminas/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames"
+  ],
   "url_test": "https://www.mithoficial.com.br/proteinas-whey-protein/suplementos?initialMap=productClusterIds&initialQuery=204&map=category-2,productclusternames",
   "parent_class": "vtex-product-summary-2-x-container vtex-product-summary-2-x-containerNormal overflow-hidden br3 h-100 w-100 flex flex-column justify-between center tc",
   "title_tag": "span",

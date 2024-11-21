@@ -37,11 +37,12 @@ class ProductScrapper(default):
 
     def fetch_product(
         self,
-        url_test,
+        urls,
         parent_tag,
         title_tag,
         img_tag,
         price_tag,
+        url_test="",
         url_tag="",
         url_attribute="",
         url_base="",
@@ -188,34 +189,32 @@ class ProductScrapper(default):
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         }
+        for url in urls:
+            res = requests.get(url, headers=headers)
+            print(f"Status Code: {res.status_code}")
 
-        # Loop para as URLs
-        res = requests.get(url_test, headers=headers)
-        print(f"Status Code: {res.status_code}")
-        print("-" * 10)
+            if res.status_code != 200:
+                print(f"Failed to fetch URL: {url} with status code {res.status_code}")
 
-        if res.status_code != 200:
-            print(f"Failed to fetch URL: {url_test} with status code {res.status_code}")
+            soup = BeautifulSoup(res.content, "html.parser")
 
-        soup = BeautifulSoup(res.content, "html.parser")
+            extract_product_data(soup, parent_tag, parent_class)
 
-        extract_product_data(soup, parent_tag, parent_class)
+            if alt_parent_tag and alt_parent_class:
+                extract_product_data(soup, alt_parent_tag, alt_parent_class)
 
-        if alt_parent_tag and alt_parent_class:
-            extract_product_data(soup, alt_parent_tag, alt_parent_class)
-
-        if alt_parent_tag_2 and alt_parent_class_2:
-            extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
-
+            if alt_parent_tag_2 and alt_parent_class_2:
+                extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
+                
         result = {"total": len(self.product_list), "products": self.product_list}
-        # self.VerifyAlteration(self.product_url
-    
-
-
-    def InsertConfig(se)
-
-
-
+        
+        self.VerifyCompanyExists(self.product_list)
+        self.VerifyAlteration(self.product_url)
+        
+        return result
+    def VerifyCompanyExists(self, product_list):
+        product_list
+        
     def VerifyAlteration(self, product_list):
         product_b = []
         for product_r in product_list:
@@ -239,7 +238,6 @@ class ProductScrapper(default):
                 print(f"Produto {title_r} existe no banco")
                 product = product_b[0]
                 if product[0] != title_r:
-                    print(product[3])
                     self.operation.UpdateProduct("title_product", title_r, product[3])
                 if product[1] != price_r:
                     self.operation.UpdateProduct("price_product", price_r, product[3])
@@ -249,12 +247,17 @@ class ProductScrapper(default):
                 print(f"Inserindo o Produto {title_r}")
                 image_blob_r = self.funcs.download_image(image_src_r)
                 self.operation.InsertProduct(
-                    title_r, price_r, image_src_r, url_r, image_blob_r,
+                    title_r, price_r, url_r, image_src_r, image_blob_r,
                 )
 
 run = ProductScrapper()
-config = ProductConfig()
+configDB = Operations()
+configJson = ProductConfig()
 
-product_config = config.get_config()
-
-run.fetch_product(**product_config)
+choice = input("Json(1) or Sqlite(2)")
+if choice == "1":
+    product_config = configDB.SelectConfigCompany()
+    run.fetch_product(**product_config)
+elif choice == "2":
+    product_config = configJson.get_config()
+    run.fetch_product(**product_config)
