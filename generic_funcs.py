@@ -12,7 +12,7 @@ class funcs:
 
     def download_image(self, image_src_url):
         save_directory = "input_image_path"
-        
+
         file_name = os.path.basename(image_src_url) + ".png"
         file_name = file_name.replace("?", "").replace("&", "")
         save_path = os.path.join(save_directory, file_name)
@@ -35,7 +35,7 @@ class funcs:
         )
         self.blob = self.GetBlobImg(path=self.output_path, filename=file_name)
         self.DeleteFiles(input_path=self.input_path, output_path=self.output_path)
-        
+
         return self.blob
 
     def get_icon_img(self, input_image_path, output_path):

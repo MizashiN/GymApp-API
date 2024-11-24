@@ -13,6 +13,9 @@ class ProductData:
     price: str
     image_src: str
     url: str
+    company: str
+    category: str
+    subcategory: str = None
 
 
 class ProductConfig:
@@ -31,18 +34,20 @@ class default:
         self.urls = []
         self.list_img_srcs = []
         self.product_list = []
+        self.categories = []
+        self.subcategories = []
 
 
 class ProductScrapper(default):
 
     def fetch_product(
         self,
-        urls,
+        url,
         parent_tag,
         title_tag,
         img_tag,
         price_tag,
-        name_company,
+        company,
         url_test="",
         url_tag="",
         url_attribute="",
@@ -79,6 +84,8 @@ class ProductScrapper(default):
                 title = product_info.find(title_tag, class_=title_class)
 
                 price_list = []
+                price = None
+                company_name = None
                 if (
                     price_tag
                     and price_code
@@ -152,32 +159,74 @@ class ProductScrapper(default):
                         price_text = "".join(price_list).replace("R$", "R$ ")
 
                     url_product = link_product.get(url_attribute)
-                    pos = -1
+
                     if url_base:
                         url_product = url_base + url_product
-                        pos = url_product.find("https")
 
-                    if pos != -1:
-                        url_product = url_product[pos:]
+                    if not url_product.startswith("https"):
+                        url_product = "https://" + url_product
 
                     image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
 
-                    if title_text and price_text and image_src and url_product:
+                    match = re.search(r"www\.(.*?)\.com", url_base)
+
+                    if match:
+                        company_name = match.group(1)
+                    else:
+                        print("Nome da empresa não encontrado")
+
+                    for a in self.categories:
+                        cat = u.find(a[0])
+                        print(u)
+                        print(a[0])
+                        if cat != -1:
+                            category_name = a[0]
+
+                            break
+
+                    for b in self.subcategories:
+                        title_lower = title_text.lower()
+                        subcat = title_lower.find(b[0])
+                        if subcat != -1:
+                            subcategory_name = b[0]
+                            break
+                        else:
+                            subcategory_name = ""
+
+                    if (
+                        title_text
+                        and price_text
+                        and image_src
+                        and url_product
+                        and company_name
+                        and category_name
+                    ):
+
                         print("Success Scrapping")
+                        self.operation.CheckAndInsertUrlCompany(
+                            id_company=self.id_company,
+                            url=u,
+                            title_text=title_text,
+                            categs=self.categories,
+                            subcategs=self.subcategories,
+                        )
                         list_product = []
                         list_product = [title_text, price_text, image_src, url_product]
 
-                        for l in list_product:
-                            print(l)
-                        print("-" * 10)
+                        # for l in list_product:
+                        #    print(l)
+                        # print("-" * 10)
                         self.product_list.append(
                             ProductData(
                                 title=title_text,
                                 price=price_text,
                                 image_src=image_src,
                                 url=url_product,
+                                company=company_name,
+                                category=category_name,
+                                subcategory=subcategory_name,
                             )
                         )
                     else:
@@ -189,9 +238,16 @@ class ProductScrapper(default):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
         }
 
-        if not self.operation.VerifyCompanyExists(company_name=name_company):
-            self.operation.InsertCompany(
-                company_name=name_company,
+        self.categories = self.operation.SelectCategories()
+        self.subcategories = self.operation.SelectSubCategories()
+        if not self.operation.CheckCompanyExists(company=company):
+            self.operation.InsertCompany(company=company)
+        else:
+            self.id_company = self.operation.CheckCompanyExists(company=company)
+
+        if not self.operation.VerifyConfigExists(parent_tag=parent_tag):
+            self.operation.InsertConfigCompany(
+                id_company=self.id_company,
                 parent_tag=parent_tag,
                 title_tag=title_tag,
                 img_tag=img_tag,
@@ -224,12 +280,12 @@ class ProductScrapper(default):
                 alt_parent_class=alt_parent_class,
             )
 
-        for url in urls:
-            res = requests.get(url, headers=headers)
+        for u in url:
+            res = requests.get(u, headers=headers)
             print(f"Status Code: {res.status_code}")
 
             if res.status_code != 200:
-                print(f"Failed to fetch URL: {url} with status code {res.status_code}")
+                print(f"Failed to fetch URL: {u} with status code {res.status_code}")
 
             soup = BeautifulSoup(res.content, "html.parser")
 
@@ -253,11 +309,17 @@ class ProductScrapper(default):
                 price_r,
                 title_r,
                 url_r,
+                company_name,
+                category,
+                subcategory,
             ) = (
                 product_r.image_src,
                 product_r.price,
                 product_r.title,
                 product_r.url,
+                product_r.company,
+                product_r.category,
+                product_r.subcategory,
             )
 
             price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
@@ -282,14 +344,18 @@ class ProductScrapper(default):
                     url_r,
                     image_src_r,
                     image_blob_r,
+                    company_name,
+                    category,
+                    subcategory,
                 )
 
 
 run = ProductScrapper()
+configDB = Operations()
 configJson = ProductConfig()
 
 product_config = configJson.get_config()
 run.fetch_product(**product_config)
 
-# product_config = configJson.get_config()
+# product_config = configDB.SelectConfigCompany()
 # run.fetch_product(**product_config)
