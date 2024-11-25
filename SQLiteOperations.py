@@ -43,21 +43,12 @@ class Operations:
 
         id_company = configcompany["id_company"]
 
-        self.cursor.execute(
-            """
-            SELECT url
-            FROM urlssearch
-            WHERE id_company = ?
-            """,
-            (id_company,),
-        )
+        url = self.SearchUrlBases(id_company)
+        dict_catsub = self.SelectCategories(id_company)
+        urls_list = self.BuildUrls(dict_catsub, url)
 
-        urls = self.cursor.fetchall()
-        url = [u[0] for u in urls]
-        configcompany["url"] = url
+        configcompany["url"] = urls_list
 
-        if "id_company" in configcompany:
-            del configcompany["id_company"]
         return configcompany
 
     def CheckCompanyExists(self, company):
@@ -73,56 +64,6 @@ class Operations:
             return value[0]
         else:
             return False
-
-    def InsertCompany(self, company):
-        self.cursor.execute(
-            """
-            INSERT INTO companies
-            (company)
-            VALUES(?);
-            """,
-            (company,),
-        )
-        self.conn.commit()
-
-    def CheckAndInsertUrlCompany(
-        self,
-        id_company,
-        url,
-        title_text,
-        categs,
-        subcategs,
-    ):
-        for a in categs:
-            cat = url.find(a[0].lower())
-
-            if cat != -1:
-                category_name = a[0].lower()
-
-        for b in subcategs:
-            subcat = title_text.find(b[0].lower())
-            if subcat != -1:
-                subcategory_name = b[0].lower()
-            else:
-                subcategory_name = ""
-
-        if not self.CheckUrlExists(url):
-            self.cursor.execute(
-                """
-                        INSERT INTO urlssearch
-                        (id_company, url, id_category, id_subcategory)
-                        VALUES (?, ?, 
-                        (SELECT id_category FROM categories WHERE category = ?), 
-                        (SELECT id_subcategory FROM subcategories WHERE subcategory = ?))
-                        """,
-                (
-                    id_company,
-                    url,
-                    category_name,
-                    subcategory_name,
-                ),
-            )
-            self.conn.commit()
 
     def InsertConfigCompany(
         self,
@@ -233,31 +174,56 @@ class Operations:
 
         return check
 
-    def SelectCategories(self):
+    def BuildUrls(self, dict_urls, url_base):
+        url_list = []
+        for a in dict_urls.keys():
+            values = dict_urls[a]
+            for b in values:
+                url = url_base + a + "/" + b
+                url_list.append(url)
+
+        return url_list
+
+    def SelectCategories(self, id_company):
+        dict_urls = {}
         self.cursor.execute(
             """
-            SELECT category FROM categories
-            """
+            SELECT id_category, companyparam FROM categoryparams WHERE id_company = ?
+            """,
+            (id_company,),
         )
 
-        categories = self.cursor.fetchall()
-        return categories
+        result = self.cursor.fetchall()
+        for c in result:
+            subcat = self.SelectSubCategories(id_company, c[0])
+            dict_urls[c[1]] = subcat
 
-    def SelectSubCategories(self):
+        return dict_urls
+
+    def SelectSubCategories(self, id_company, id_category=""):
         self.cursor.execute(
             """
-            SELECT subcategory FROM subcategories
-            """
+            SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category = ?
+            """,
+            (
+                id_company,
+                id_category,
+            ),
         )
 
-        subcategories = self.cursor.fetchall()
+        result = self.cursor.fetchall()
+        subcategories = [s[0] for s in result]
         return subcategories
 
-    def ScrappCompanies(self):
-        self.cursor.execute("SELECT url FROM urlssearch")
+    def SearchUrlBases(self, id_company):
+        self.cursor.execute(
+            "SELECT urlbase FROM urlbases WHERE id_company = ?",
+            (id_company,),
+        )
         urls = self.cursor.fetchall()
+        url = [u[0] for u in urls]
 
-        return urls
+        return url[0]
 
     def verify_images(self, src_list):
         self.list = src_list.copy()
@@ -337,3 +303,7 @@ class Operations:
             self.cursor.close()
         if self.conn:
             self.conn.close()
+
+
+ruin = Operations()
+ruin.SelectCategories(37)

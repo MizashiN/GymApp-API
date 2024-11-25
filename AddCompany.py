@@ -47,6 +47,7 @@ class ProductScrapper(default):
         title_tag,
         img_tag,
         price_tag,
+        id_company,
         company,
         url_test="",
         url_tag="",
@@ -85,7 +86,6 @@ class ProductScrapper(default):
 
                 price_list = []
                 price = None
-                company_name = None
                 if (
                     price_tag
                     and price_code
@@ -170,25 +170,15 @@ class ProductScrapper(default):
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
 
-                    match = re.search(r"www\.(.*?)\.com", url_base)
-
-                    if match:
-                        company_name = match.group(1)
-                    else:
-                        print("Nome da empresa não encontrado")
-
                     for a in self.categories:
                         cat = u.find(a[0])
-                        print(u)
-                        print(a[0])
                         if cat != -1:
                             category_name = a[0]
-
                             break
 
                     for b in self.subcategories:
-                        title_lower = title_text.lower()
-                        subcat = title_lower.find(b[0])
+                        url_lower = u.lower()
+                        subcat = url_lower.find(b[0])
                         if subcat != -1:
                             subcategory_name = b[0]
                             break
@@ -200,31 +190,23 @@ class ProductScrapper(default):
                         and price_text
                         and image_src
                         and url_product
-                        and company_name
                         and category_name
                     ):
 
                         print("Success Scrapping")
-                        self.operation.CheckAndInsertUrlCompany(
-                            id_company=self.id_company,
-                            url=u,
-                            title_text=title_text,
-                            categs=self.categories,
-                            subcategs=self.subcategories,
-                        )
                         list_product = []
                         list_product = [title_text, price_text, image_src, url_product]
 
-                        # for l in list_product:
-                        #    print(l)
-                        # print("-" * 10)
+                        for l in list_product:
+                            print(l)
+                        print("-" * 10)
                         self.product_list.append(
                             ProductData(
                                 title=title_text,
                                 price=price_text,
                                 image_src=image_src,
                                 url=url_product,
-                                company=company_name,
+                                company=company,
                                 category=category_name,
                                 subcategory=subcategory_name,
                             )
@@ -235,19 +217,18 @@ class ProductScrapper(default):
                         )
 
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "Referer": url_base,  # Definindo o referer
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
         }
 
-        self.categories = self.operation.SelectCategories()
-        self.subcategories = self.operation.SelectSubCategories()
-        if not self.operation.CheckCompanyExists(company=company):
-            self.operation.InsertCompany(company=company)
-        else:
-            self.id_company = self.operation.CheckCompanyExists(company=company)
+        self.categories = self.operation.SelectCategories(id_company)
+        self.subcategories = self.operation.SelectSubCategories(id_company)
 
         if not self.operation.VerifyConfigExists(parent_tag=parent_tag):
             self.operation.InsertConfigCompany(
-                id_company=self.id_company,
+                id_company=id_company,
                 parent_tag=parent_tag,
                 title_tag=title_tag,
                 img_tag=img_tag,
@@ -354,8 +335,8 @@ run = ProductScrapper()
 configDB = Operations()
 configJson = ProductConfig()
 
-product_config = configJson.get_config()
-run.fetch_product(**product_config)
-
-# product_config = configDB.SelectConfigCompany()
+# product_config = configJson.get_config()
 # run.fetch_product(**product_config)
+
+product_config = configDB.SelectConfigCompany()
+run.fetch_product(**product_config)
