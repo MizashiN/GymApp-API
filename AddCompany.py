@@ -49,6 +49,11 @@ class ProductScrapper(default):
         price_tag,
         id_company,
         company,
+        limit_product,
+        TotalProducts_tag,
+        TotalProducts_class,
+        parentTotalProducts_tag="",
+        parentTotalProducts_class="",
         url_test="",
         url_tag="",
         url_attribute="",
@@ -80,7 +85,7 @@ class ProductScrapper(default):
 
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
-
+            print(product_items)
             for idx, product_info in enumerate(product_items):
                 title = product_info.find(title_tag, class_=title_class)
 
@@ -118,6 +123,7 @@ class ProductScrapper(default):
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
+
 
                 image = product_info.find(img_tag, class_=img_class)
 
@@ -184,7 +190,6 @@ class ProductScrapper(default):
                             break
                         else:
                             subcategory_name = ""
-
                     if (
                         title_text
                         and price_text
@@ -217,11 +222,9 @@ class ProductScrapper(default):
                         )
 
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Referer": url_base,  # Definindo o referer
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-        }
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            }
+        
 
         self.categories = self.operation.SelectCategories(id_company)
         self.subcategories = self.operation.SelectSubCategories(id_company)
@@ -262,6 +265,7 @@ class ProductScrapper(default):
             )
 
         for u in url:
+            u  
             res = requests.get(u, headers=headers)
             print(f"Status Code: {res.status_code}")
 
@@ -281,6 +285,21 @@ class ProductScrapper(default):
         result = {"total": len(self.product_list), "products": self.product_list}
         self.VerifyAlteration(self.product_list)
         return result
+
+
+    def GetPageProducts(self, url, headers, totalProducts_tag, totalProducts_class="", parentTotalProducts_tag="", parentTotalProducts_class=""):
+        res = requests.get(url, headers=headers)
+        if res.status_code != 200:
+            print(f"Failed to fetch URL: {url} with status code {res.status_code}")
+
+        soup = BeautifulSoup(res.content, "html.parser")
+        if parentTotalProducts_tag and parentTotalProducts_class:
+            parentTotalProducts = soup.find(totalProducts_tag, class_=totalProducts_class)
+            totalProducts = parentTotalProducts.find(totalProducts_tag)
+            totalProducts_text = totalProducts.get_text(strip=True)
+            
+        return totalProducts_text
+
 
     def VerifyAlteration(self, product_list):
         product_b = []
