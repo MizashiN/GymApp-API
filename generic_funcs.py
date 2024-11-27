@@ -22,7 +22,6 @@ class funcs:
             if response.status_code == 200:
                 with open(save_path, "wb") as f:
                     f.write(response.content)
-                print(f"Imagem baixada com sucesso em: {save_path}")
             else:
                 print(
                     f"Falha ao fazer o download da imagem {image_src_url}. Código de status: {response.status_code}"
@@ -47,7 +46,6 @@ class funcs:
         # Cria o diretório de saída, se não existir
         if not os.path.isdir(output_path):
             os.makedirs(output_path)
-            print(f"O diretório de saída {output_path} foi criado.")
 
         # Itera sobre os arquivos no diretório de entrada
         for filename in os.listdir(input_image_path):
@@ -81,7 +79,6 @@ class funcs:
 
                     # Salva a imagem redimensionada com fundo branco como PNG
                     output_image_with_background.save(output_file_path, format="PNG")
-                    print(f"Imagem salva em: {output_file_path}")
                 except Exception as e:
                     print(f"Erro ao processar a imagem {filename}: {e}")
 
@@ -101,7 +98,6 @@ class funcs:
             # Verifica se é um arquivo (ignora diretórios)
             if os.path.isfile(full_path):
                 os.remove(full_path)  # Remove o arquivo
-                print(f"Arquivo '{arquivo}' removido em {input_path}.")
             else:
                 print(f"'{arquivo}' não é um arquivo, ignorado.")
 
@@ -111,6 +107,5 @@ class funcs:
             # Verifica se é um arquivo (ignora diretórios)
             if os.path.isfile(full_path):
                 os.remove(full_path)  # Remove o arquivo
-                print(f"Arquivo '{arquivo}' removido em {output_path}.")
             else:
                 print(f"'{arquivo}' não é um arquivo, ignorado.")

@@ -21,7 +21,9 @@ class Operations:
                 c.price_class, c.img_class, c.alt_price_parent_tag,
                 c.alt_price_parent_class, c.alt_img_tag, c.alt_img_class,
                 c.alt_parent_class_2, c.alt_img_tag_2, c.alt_img_class_2,
-                c.alt_parent_tag_2, c.alt_parent_tag, c.alt_parent_class
+                c.alt_parent_tag_2, c.alt_parent_tag, c.alt_parent_class,
+                c.parentTotalProducts_tag,c.parentTotalProducts_class,
+                c.totalProducts_tag, c.totalProducts_class, c.limit_products 
             FROM
                 configcompanies c
             JOIN
@@ -178,10 +180,13 @@ class Operations:
         url_list = []
         for a in dict_urls.keys():
             values = dict_urls[a]
-            for b in values:
-                url = url_base + a + "/" + b
-                url_list.append(url)
-
+            if values != []:
+                for b in values:
+                    url = url_base + a + "/" + b
+            else:
+                url = url_base + a
+            url_list.append(url)
+        print(url_list)
         return url_list
 
     def SelectCategories(self, id_company):
@@ -197,8 +202,19 @@ class Operations:
         for c in result:
             subcat = self.SelectSubCategories(id_company, c[0])
             dict_urls[c[1]] = subcat
-
         return dict_urls
+
+    def SelectCompanyCategories(self, id_company):
+        self.cursor.execute(
+            """
+            SELECT companyparam FROM categoryparams WHERE id_company = ?
+            """,
+            (id_company,),
+        )
+
+        result = self.cursor.fetchall()
+        categories = [s[0] for s in result]
+        return categories
 
     def SelectSubCategories(self, id_company, id_category=""):
         self.cursor.execute(
@@ -209,6 +225,18 @@ class Operations:
                 id_company,
                 id_category,
             ),
+        )
+
+        result = self.cursor.fetchall()
+        subcategories = [s[0] for s in result]
+        return subcategories
+
+    def SelectCompanySubCategories(self, id_company):
+        self.cursor.execute(
+            """
+            SELECT companyparam FROM subcategorytitleparams WHERE id_company = ?
+            """,
+            (id_company,),
         )
 
         result = self.cursor.fetchall()
@@ -279,8 +307,9 @@ class Operations:
 
         self.cursor.execute(
             """INSERT INTO products (title_product,price_product,url_product,id_image, id_company, id_category, id_subcategory) 
-            VALUES (?, ?, ?, (SELECT id_image FROM images WHERE image_src = ?),(SELECT id_company FROM companies WHERE company = ?), (SELECT id_category FROM categories WHERE category = ?),
-            (SELECT id_subcategory FROM subcategories WHERE subcategory = ?)
+            VALUES (?, ?, ?, (SELECT id_image FROM images WHERE image_src = ?),(SELECT id_company FROM companies WHERE company = ?), 
+            (SELECT id_category FROM categoryparams WHERE companyparam = ?),
+            (SELECT id_subcategory FROM subcategorytitleparams WHERE companyparam = ?)
             )
             
             

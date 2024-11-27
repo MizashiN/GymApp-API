@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-import requests
 from SQLiteOperations import Operations
 from generic_funcs import funcs
+import math
+import requests
 import json
 import re
 
@@ -49,9 +50,9 @@ class ProductScrapper(default):
         price_tag,
         id_company,
         company,
-        limit_product,
-        TotalProducts_tag,
-        TotalProducts_class,
+        limit_products,
+        totalProducts_tag,
+        totalProducts_class,
         parentTotalProducts_tag="",
         parentTotalProducts_class="",
         url_test="",
@@ -85,10 +86,7 @@ class ProductScrapper(default):
 
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
-            print(product_items)
             for idx, product_info in enumerate(product_items):
-                title = product_info.find(title_tag, class_=title_class)
-
                 price_list = []
                 price = None
                 if (
@@ -123,111 +121,114 @@ class ProductScrapper(default):
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
+                if not price == None:
+                    title = product_info.find(title_tag, class_=title_class)
 
+                    image = product_info.find(img_tag, class_=img_class)
 
-                image = product_info.find(img_tag, class_=img_class)
-
-                if not image:
-                    print("Warning: Primary image not found, trying alt tag and class")
-                    image = product_info.find(
-                        alt_img_tag, class_=alt_img_class
-                    ) or product_info.find(alt_img_tag_2, class_=alt_img_class_2)
-                link_product = product_info.find(url_tag, url_class)
-
-                if not link_product:
-                    parent_item = product_info.find_parent()
-                    if parent_item:
-                        link_product = parent_item.find(url_tag, class_=url_class)
-                        if link_product:
-                            print(f"Link do produto encontrado no pai: {link_product}")
-                        else:
-                            print("Warning: href não encontrado no elemento pai.")
-                    else:
-                        print("Warning: Elemento pai não encontrado.")
-
-                if title and image and link_product and (price or price_list):
-                    title_text = title.get_text(strip=True)
-                    if price:
-                        price_text = (
-                            price.get_text(strip=True)
-                            .replace("\u00a0", "")
-                            .replace("R$", "R$ ")
-                            .replace("R$  ", "R$ ")
-                            .strip()
-                        )
-
-                        price_text = re.sub(
-                            r"^(R\$ \d{1,3}(?:\.\d{3})*(?:,\d{2})?)(.*)",
-                            r"\1",
-                            price_text,
-                        ).strip()
-                    if price_list:
-                        price_text = "".join(price_list).replace("R$", "R$ ")
-
-                    url_product = link_product.get(url_attribute)
-
-                    if url_base:
-                        url_product = url_base + url_product
-
-                    if not url_product.startswith("https"):
-                        url_product = "https://" + url_product
-
-                    image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
-                    if not image_src.startswith("https:"):
-                        image_src = "https:" + image_src
-
-                    for a in self.categories:
-                        cat = u.find(a[0])
-                        if cat != -1:
-                            category_name = a[0]
-                            break
-
-                    for b in self.subcategories:
-                        url_lower = u.lower()
-                        subcat = url_lower.find(b[0])
-                        if subcat != -1:
-                            subcategory_name = b[0]
-                            break
-                        else:
-                            subcategory_name = ""
-                    if (
-                        title_text
-                        and price_text
-                        and image_src
-                        and url_product
-                        and category_name
-                    ):
-
-                        print("Success Scrapping")
-                        list_product = []
-                        list_product = [title_text, price_text, image_src, url_product]
-
-                        for l in list_product:
-                            print(l)
-                        print("-" * 10)
-                        self.product_list.append(
-                            ProductData(
-                                title=title_text,
-                                price=price_text,
-                                image_src=image_src,
-                                url=url_product,
-                                company=company,
-                                category=category_name,
-                                subcategory=subcategory_name,
-                            )
-                        )
-                    else:
+                    if not image:
                         print(
-                            "Warning: Skipping product item due to missing data (title, price, image or url_product)"
+                            "Warning: Primary image not found, trying alt tag and class"
                         )
+                        image = product_info.find(
+                            alt_img_tag, class_=alt_img_class
+                        ) or product_info.find(alt_img_tag_2, class_=alt_img_class_2)
+                    link_product = product_info.find(url_tag, url_class)
+
+                    if not link_product:
+                        parent_item = product_info.find_parent()
+                        if parent_item:
+                            link_product = parent_item.find(url_tag, class_=url_class)
+                            if link_product:
+                                print(
+                                    f"Link do produto encontrado no pai: {link_product}"
+                                )
+                            else:
+                                print("Warning: href não encontrado no elemento pai.")
+                        else:
+                            print("Warning: Elemento pai não encontrado.")
+
+                    if title and image and link_product and (price or price_list):
+                        title_text = title.get_text(strip=True)
+                        if price:
+                            price_text = (
+                                price.get_text(strip=True)
+                                .replace("\u00a0", "")
+                                .replace("R$", "R$ ")
+                                .replace("R$  ", "R$ ")
+                                .strip()
+                            )
+
+                            price_text = re.sub(
+                                r"^(R\$ \d{1,3}(?:\.\d{3})*(?:,\d{2})?)(.*)",
+                                r"\1",
+                                price_text,
+                            ).strip()
+                        if price_list:
+                            price_text = "".join(price_list).replace("R$", "R$ ")
+
+                        url_product = link_product.get(url_attribute)
+
+                        if url_base:
+                            url_product = url_base + url_product
+
+                        if not url_product.startswith("https"):
+                            url_product = "https://" + url_product
+
+                        image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
+                        if not image_src.startswith("https:"):
+                            image_src = "https:" + image_src
+
+                        for a in self.categories:
+                            cat = u.find(a)
+                            if cat != -1:
+                                category_name = a
+                                break
+
+                        title_lower = title_text.lower()
+                        for b in self.subcategories:
+                            subcat = title_lower.find(b)
+                            if subcat != -1:
+                                subcategory_name = b
+                                break
+                            else:
+                                subcategory_name = ""
+                        if (
+                            title_text
+                            and price_text
+                            and image_src
+                            and url_product
+                            and category_name
+                        ):
+
+                            list_product = []
+                            list_product = [
+                                title_text,
+                                price_text,
+                                image_src,
+                                url_product,
+                            ]
+
+                            self.product_list.append(
+                                ProductData(
+                                    title=title_text,
+                                    price=price_text,
+                                    image_src=image_src,
+                                    url=url_product,
+                                    company=company,
+                                    category=category_name,
+                                    subcategory=subcategory_name,
+                                )
+                            )
+                        else:
+                            print("está faltando alguma condição")
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            }
-        
+        }
 
-        self.categories = self.operation.SelectCategories(id_company)
-        self.subcategories = self.operation.SelectSubCategories(id_company)
+        self.categories = self.operation.SelectCompanyCategories(id_company)
+        self.subcategories = self.operation.SelectCompanySubCategories(id_company)
 
         if not self.operation.VerifyConfigExists(parent_tag=parent_tag):
             self.operation.InsertConfigCompany(
@@ -265,41 +266,86 @@ class ProductScrapper(default):
             )
 
         for u in url:
-            u  
-            res = requests.get(u, headers=headers)
-            print(f"Status Code: {res.status_code}")
+            totalproducts = 0
+            totalproducts = self.GetPageProducts(
+                url=u,
+                headers=headers,
+                parentTotalProducts_tag=parentTotalProducts_tag,
+                parentTotalProducts_class=parentTotalProducts_class,
+                totalProducts_tag=totalProducts_tag,
+                totalProducts_class=totalProducts_class,
+                limit_products=limit_products,
+            )
+            if totalproducts:
+                for i in range(1, totalproducts):
+                    urlPage = f"{u}?page={i}"
+                    res = requests.get(urlPage, headers=headers)
+                    print(f"Status Code: {res.status_code}")
 
-            if res.status_code != 200:
-                print(f"Failed to fetch URL: {u} with status code {res.status_code}")
+                    if res.status_code != 200:
+                        print(
+                            f"Failed to fetch URL: {u} with status code {res.status_code}"
+                        )
 
-            soup = BeautifulSoup(res.content, "html.parser")
+                    soup = BeautifulSoup(res.content, "html.parser")
 
-            extract_product_data(soup, parent_tag, parent_class)
+                    extract_product_data(soup, parent_tag, parent_class)
 
-            if alt_parent_tag and alt_parent_class:
-                extract_product_data(soup, alt_parent_tag, alt_parent_class)
+                    if alt_parent_tag and alt_parent_class:
+                        extract_product_data(soup, alt_parent_tag, alt_parent_class)
 
-            if alt_parent_tag_2 and alt_parent_class_2:
-                extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
+                    if alt_parent_tag_2 and alt_parent_class_2:
+                        extract_product_data(soup, alt_parent_tag_2, alt_parent_class_2)
 
         result = {"total": len(self.product_list), "products": self.product_list}
         self.VerifyAlteration(self.product_list)
         return result
 
-
-    def GetPageProducts(self, url, headers, totalProducts_tag, totalProducts_class="", parentTotalProducts_tag="", parentTotalProducts_class=""):
+    def GetPageProducts(
+        self,
+        url,
+        headers,
+        limit_products,
+        totalProducts_tag,
+        totalProducts_class="",
+        parentTotalProducts_tag="",
+        parentTotalProducts_class="",
+    ):
+        result = 0
         res = requests.get(url, headers=headers)
+
         if res.status_code != 200:
             print(f"Failed to fetch URL: {url} with status code {res.status_code}")
 
         soup = BeautifulSoup(res.content, "html.parser")
-        if parentTotalProducts_tag and parentTotalProducts_class:
-            parentTotalProducts = soup.find(totalProducts_tag, class_=totalProducts_class)
-            totalProducts = parentTotalProducts.find(totalProducts_tag)
-            totalProducts_text = totalProducts.get_text(strip=True)
-            
-        return totalProducts_text
 
+        if parentTotalProducts_tag and parentTotalProducts_class:
+            parentTotalProducts = soup.find(
+                parentTotalProducts_tag, class_=parentTotalProducts_class
+            )
+            totalProducts = parentTotalProducts.find(
+                totalProducts_tag, class_=totalProducts_class
+            )
+
+        else:
+            totalProducts = soup.find(totalProducts_tag, class_=totalProducts_class)
+
+        total_text = totalProducts.get_text(strip=True)
+        total = re.sub(r"[^0-9]", "", total_text)
+
+        total = int(total)
+        limit_products = int(limit_products)
+
+        div = total / limit_products
+
+        if div % 1 != 0:
+            result = math.ceil(div)
+        else:
+            result = int(div)
+
+        result = result + 1
+
+        return result
 
     def VerifyAlteration(self, product_list):
         product_b = []
@@ -336,7 +382,6 @@ class ProductScrapper(default):
                 if product[2] != url_r:
                     self.operation.UpdateProduct("url_product", url_r, product[3])
             else:
-                print(f"Inserindo o Produto {title_r}")
                 image_blob_r = self.funcs.download_image(image_src_r)
                 self.operation.InsertProduct(
                     title_r,
@@ -348,6 +393,7 @@ class ProductScrapper(default):
                     category,
                     subcategory,
                 )
+                print(f"{title_r} \033[92mInserido com Sucesso\033[0m")
 
 
 run = ProductScrapper()
