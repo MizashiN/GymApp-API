@@ -22,8 +22,7 @@ class Operations:
                 c.alt_price_parent_class, c.alt_img_tag, c.alt_img_class,
                 c.alt_parent_class_2, c.alt_img_tag_2, c.alt_img_class_2,
                 c.alt_parent_tag_2, c.alt_parent_tag, c.alt_parent_class,
-                c.parentTotalProducts_tag,c.parentTotalProducts_class,
-                c.totalProducts_tag, c.totalProducts_class, c.limit_products 
+                c.unv_product_tag, c.unv_product_class
             FROM
                 configcompanies c
             JOIN
