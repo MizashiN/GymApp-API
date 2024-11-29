@@ -44,7 +44,7 @@ class Operations:
 
         id_company = configcompany["id_company"]
 
-        url = self.SearchUrlBases(id_company)
+        url = configcompany["url_base"]
         dict_catsub = self.SelectCategories(id_company)
         urls_list = self.BuildUrls(dict_catsub, url)
 
@@ -181,7 +181,7 @@ class Operations:
             values = dict_urls[a]
             if values != []:
                 for b in values:
-                    url = url_base + a + "/" + b
+                    url = url_base + "/" + a + "/" + b
             else:
                 url = url_base + a
             url_list.append(url)
