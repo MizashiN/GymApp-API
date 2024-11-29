@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from SQLiteOperations import Operations
 from generic_funcs import funcs
-import math
 import requests
 import json
 import re
@@ -18,22 +17,10 @@ class ProductData:
     category: str
     subcategory: str = None
 
-
-class ProductConfig:
-    def __init__(self, config_file="configSupp.json"):
-        with open(config_file, "r") as f:
-            self.config = json.load(f)
-
-    def get_config(self):
-        return self.config
-
-
 class default:
     def __init__(self):
         self.operation = Operations()
         self.funcs = funcs()
-        self.urls = []
-        self.list_img_srcs = []
         self.product_list = []
         self.categories = []
         self.subcategories = []
@@ -84,7 +71,7 @@ class ProductScrapper(default):
 
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
-            if product_items == []:
+            if not product_items:
                 print("Não achou product items então acabou a url")
                 self.url_break = True
                 return
@@ -190,6 +177,7 @@ class ProductScrapper(default):
                         cat = u.find(a)
                         if cat != -1:
                             category_name = a
+                            self.subcategories = self.operation.SelectCompanySubCategories(id_company, a)
                             break
 
                     title_lower = title_text.lower()
@@ -235,47 +223,11 @@ class ProductScrapper(default):
         }
 
         self.categories = self.operation.SelectCompanyCategories(id_company)
-        self.subcategories = self.operation.SelectCompanySubCategories(id_company)
-
-        if not self.operation.VerifyConfigExists(parent_tag=parent_tag):
-            self.operation.InsertConfigCompany(
-                id_company=id_company,
-                parent_tag=parent_tag,
-                title_tag=title_tag,
-                img_tag=img_tag,
-                price_tag=price_tag,
-                url_tag=url_tag,
-                url_attribute=url_attribute,
-                url_base=url_base,
-                url_class=url_class,
-                url_test=url_test,
-                price_parent_tag=price_parent_tag,
-                price_parent_class=price_parent_class,
-                price_code=price_code,
-                price_integer=price_integer,
-                price_decimal=price_decimal,
-                price_fraction=price_fraction,
-                img_attribute=img_attribute,
-                parent_class=parent_class,
-                title_class=title_class,
-                price_class=price_class,
-                img_class=img_class,
-                alt_price_parent_tag=alt_price_parent_tag,
-                alt_price_parent_class=alt_price_parent_class,
-                alt_img_tag=alt_img_tag,
-                alt_img_class=alt_img_class,
-                alt_parent_class_2=alt_parent_class_2,
-                alt_img_tag_2=alt_img_tag_2,
-                alt_img_class_2=alt_img_class_2,
-                alt_parent_tag_2=alt_parent_tag_2,
-                alt_parent_tag=alt_parent_tag,
-                alt_parent_class=alt_parent_class,
-            )
 
         for u in url:
             self.url_break = False
             for i in range(1, 100):
-                urlPage = f"{u}?page={i}"
+                urlPage = f"{u}{pageparam}{i}"
                 res = requests.get(urlPage, headers=headers)
                 print(urlPage)
                 print(f"Status Code: {res.status_code}")
@@ -328,14 +280,17 @@ class ProductScrapper(default):
             product_b = self.operation.SelectProduct(image_src_r)
 
             if product_b:
-                print(f"Produto {title_r} existe no banco")
+                print(f"Produto \033[1;37m{title_r}\033[0m existe no banco")
                 product = product_b[0]
                 if product[0] != title_r:
                     self.operation.UpdateProduct("title_product", title_r, product[3])
+                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no nome\033[0m")
                 if product[1] != price_r:
                     self.operation.UpdateProduct("price_product", price_r, product[3])
+                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no preço\033[0m")
                 if product[2] != url_r:
                     self.operation.UpdateProduct("url_product", url_r, product[3])
+                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança na url\033[0m")
             else:
                 image_blob_r = self.funcs.download_image(image_src_r)
                 self.operation.InsertProduct(
@@ -348,15 +303,11 @@ class ProductScrapper(default):
                     category,
                     subcategory,
                 )
-                print(f"{title_r} \033[92mInserido com Sucesso\033[0m")
+                print(f"\033[1;37m{title_r}\033[0m \033[92mInserido com Sucesso\033[0m")
 
 
 run = ProductScrapper()
 configDB = Operations()
-configJson = ProductConfig()
-
-# product_config = configJson.get_config()
-# run.fetch_product(**product_config)
 
 product_config = configDB.SelectConfigCompany()
 run.fetch_product(**product_config)
