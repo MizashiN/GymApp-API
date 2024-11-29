@@ -185,7 +185,6 @@ class Operations:
             else:
                 url = url_base + a
             url_list.append(url)
-        print(url_list)
         return url_list
 
     def SelectCategories(self, id_company):
@@ -215,14 +214,15 @@ class Operations:
         categories = [s[0] for s in result]
         return categories
 
-    def SelectSubCategories(self, id_company, id_category=""):
+    def SelectSubCategories(self, id_company, companyparam):
         self.cursor.execute(
             """
-            SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category = ?
+            SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category =
+            (SELECT id_category FROM categoryparam WHERE companyparam = ?)
             """,
             (
                 id_company,
-                id_category,
+                companyparam,
             ),
         )
 
