@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from SQLiteOperations import Operations
 from generic_funcs import funcs
 import requests
-import json
 import re
 
 
@@ -247,7 +246,6 @@ class ProductScrapper(default):
             for i in range(1, 100):
                 urlPage = f"{u}{i}"
                 res = requests.get(urlPage, headers=headers)
-                print(urlPage)
                 print(f"Status Code: {res.status_code}")
 
                 if res.status_code != 200:
@@ -316,7 +314,6 @@ class ProductScrapper(default):
                     )
             else:
                 image_blob_r = self.funcs.download_image(image_src_r)
-                print(subcategory)
                 self.operation.InsertProduct(
                     title_r,
                     price_r,

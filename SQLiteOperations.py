@@ -217,6 +217,3 @@ class Operations:
         if self.conn:
             self.conn.close()
 
-
-ruin = Operations()
-ruin.SelectCategories(37)
