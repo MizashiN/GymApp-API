@@ -206,13 +206,11 @@ class ProductScrapper(default):
 
                             break
 
-                    title_lower = title_text.lower()
                     subcategory_name = None
                     for b in self.subcategories:
-                        b_lower = b.lower()
-                        subcat = title_lower.find(b_lower)
+                        subcat = title_text.find(b)
                         if subcat != -1:
-                            subcategory_name = b_lower
+                            subcategory_name = b
                             break
                         else:
                             subcategory_name = ""
@@ -318,6 +316,7 @@ class ProductScrapper(default):
                     )
             else:
                 image_blob_r = self.funcs.download_image(image_src_r)
+                print(subcategory)
                 self.operation.InsertProduct(
                     title_r,
                     price_r,

@@ -493,14 +493,14 @@
   ('multiprocessing',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\__init__.py',
    'PYMODULE'),
-  ('stringprep',
-   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\stringprep.py',
-   'PYMODULE'),
   ('_py_abc',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_py_abc.py',
    'PYMODULE'),
   ('tracemalloc',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tracemalloc.py',
+   'PYMODULE'),
+  ('stringprep',
+   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\stringprep.py',
    'PYMODULE'),
   ('json',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py',
@@ -1804,11 +1804,11 @@
  [('python312.dll',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\python312.dll',
    'BINARY'),
-  ('numpy.libs\\msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll',
-   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll',
-   'BINARY'),
   ('numpy.libs\\libscipy_openblas64_-caad452230ae4ddb57899b8b3a33c55c.dll',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-caad452230ae4ddb57899b8b3a33c55c.dll',
+   'BINARY'),
+  ('numpy.libs\\msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll',
+   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\msvcp140-23ebcc0b37c8e3d074511f362feac48b.dll',
    'BINARY'),
   ('select.pyd',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\select.pyd',
@@ -1921,64 +1921,64 @@
   ('_sqlite3.pyd',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\_sqlite3.pyd',
    'EXTENSION'),
-  ('api-ms-win-crt-process-l1-1-0.dll',
+  ('api-ms-win-crt-time-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-process-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-crt-runtime-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-runtime-l1-1-0.dll',
-   'BINARY'),
-  ('VCRUNTIME140.dll',
-   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\VCRUNTIME140.dll',
-   'BINARY'),
-  ('api-ms-win-crt-environment-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-environment-l1-1-0.dll',
+   'Toolkit\\api-ms-win-crt-time-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-locale-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-crt-locale-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-math-l1-1-0.dll',
+  ('api-ms-win-crt-filesystem-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-math-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-crt-heap-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-heap-l1-1-0.dll',
+   'Toolkit\\api-ms-win-crt-filesystem-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-conio-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-crt-conio-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-stdio-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-stdio-l1-1-0.dll',
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\VCRUNTIME140.dll',
    'BINARY'),
-  ('api-ms-win-crt-convert-l1-1-0.dll',
+  ('api-ms-win-crt-math-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-convert-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-crt-filesystem-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-filesystem-l1-1-0.dll',
+   'Toolkit\\api-ms-win-crt-math-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-string-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-crt-string-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-time-l1-1-0.dll',
+  ('api-ms-win-crt-heap-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-time-l1-1-0.dll',
+   'Toolkit\\api-ms-win-crt-heap-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-utility-l1-1-0.dll',
+  ('api-ms-win-crt-convert-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-crt-utility-l1-1-0.dll',
+   'Toolkit\\api-ms-win-crt-convert-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-runtime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-runtime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-environment-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-environment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-stdio-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-stdio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-process-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-process-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-private-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-crt-private-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-utility-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-utility-l1-1-0.dll',
    'BINARY'),
   ('libcrypto-3.dll',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\DLLs\\libcrypto-3.dll',
@@ -1999,61 +1999,25 @@
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\ucrtbase.dll',
    'BINARY'),
-  ('api-ms-win-core-string-l1-1-0.dll',
+  ('api-ms-win-core-localization-l1-2-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-string-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-util-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-util-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-libraryloader-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-libraryloader-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-synch-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-synch-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-memory-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-memory-l1-1-0.dll',
+   'Toolkit\\api-ms-win-core-localization-l1-2-0.dll',
    'BINARY'),
   ('api-ms-win-core-file-l2-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-file-l2-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-datetime-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-datetime-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-interlocked-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-interlocked-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-rtlsupport-l1-1-0.dll',
-   'BINARY'),
   ('api-ms-win-core-heap-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-heap-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-file-l1-2-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-file-l1-2-0.dll',
    'BINARY'),
   ('api-ms-win-core-console-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-console-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+  ('api-ms-win-core-processthreads-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-namedpipe-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-debug-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-debug-l1-1-0.dll',
+   'Toolkit\\api-ms-win-core-processthreads-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-core-processthreads-l1-1-1.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
@@ -2062,6 +2026,54 @@
   ('api-ms-win-core-errorhandling-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-errorhandling-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-synch-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-namedpipe-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-interlocked-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-memory-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-memory-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-string-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-profile-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-profile-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-util-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-util-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-timezone-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-timezone-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-datetime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-datetime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-libraryloader-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-libraryloader-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-core-sysinfo-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
@@ -2075,43 +2087,28 @@
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-handle-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-file-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-file-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-localization-l1-2-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-localization-l1-2-0.dll',
-   'BINARY'),
   ('api-ms-win-core-processenvironment-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
    'Toolkit\\api-ms-win-core-processenvironment-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-profile-l1-1-0.dll',
+  ('api-ms-win-core-file-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-profile-l1-1-0.dll',
+   'Toolkit\\api-ms-win-core-file-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-processthreads-l1-1-0.dll',
+  ('api-ms-win-core-debug-l1-1-0.dll',
    'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-processthreads-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-timezone-l1-1-0.dll',
-   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
-   'Toolkit\\api-ms-win-core-timezone-l1-1-0.dll',
+   'Toolkit\\api-ms-win-core-debug-l1-1-0.dll',
    'BINARY')],
  [],
  [],
  [('base_library.zip',
    'C:\\Users\\Parafal\\Documents\\GitHub\\GymApp-API\\build\\AddCompany\\base_library.zip',
    'DATA'),
-  ('certifi\\py.typed',
-   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\py.typed',
-   'DATA'),
   ('certifi\\cacert.pem',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\cacert.pem',
    'DATA'),
-  ('pyreadline3-3.5.4.dist-info\\top_level.txt',
-   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pyreadline3-3.5.4.dist-info\\top_level.txt',
+  ('certifi\\py.typed',
+   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\py.typed',
    'DATA'),
   ('pyreadline3-3.5.4.dist-info\\INSTALLER',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pyreadline3-3.5.4.dist-info\\INSTALLER',
@@ -2124,6 +2121,9 @@
    'DATA'),
   ('pyreadline3-3.5.4.dist-info\\RECORD',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pyreadline3-3.5.4.dist-info\\RECORD',
+   'DATA'),
+  ('pyreadline3-3.5.4.dist-info\\top_level.txt',
+   'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pyreadline3-3.5.4.dist-info\\top_level.txt',
    'DATA'),
   ('pyreadline3-3.5.4.dist-info\\METADATA',
    'C:\\Users\\Parafal\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pyreadline3-3.5.4.dist-info\\METADATA',

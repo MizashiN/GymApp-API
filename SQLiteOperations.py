@@ -177,13 +177,25 @@ class Operations:
         )
 
         self.cursor.execute(
-            """INSERT INTO products (title_product,price_product,url_product,id_image, id_company, id_category, id_subcategory) 
-            VALUES (?, ?, ?, (SELECT id_image FROM images WHERE image_src = ?),(SELECT id_company FROM companies WHERE company = ?), 
-            (SELECT id_category FROM categoryparams WHERE companyparam = ?),
-            (SELECT id_subcategory FROM subcategorytitleparams WHERE companyparam = ?)
+            """INSERT INTO products (
+                title_product,
+                price_product,
+                url_product,
+                id_image,
+                id_company,
+                id_category,
+                id_subcategory
             )
-            
-            
+            VALUES (
+                ?, ?, ?, 
+                (SELECT id_image FROM images WHERE image_src = ?),
+                (SELECT id_company FROM companies WHERE company = ?), 
+                (SELECT id_category FROM categoryparams WHERE companyparam = ?),
+                COALESCE(
+                    (SELECT id_subcategory FROM subcategorytitleparams WHERE companyparam = ?),
+                    (SELECT id_subcategory FROM subcategoryparams WHERE companyparam = ?)
+                )
+            )
             """,
             (
                 title,
@@ -192,6 +204,7 @@ class Operations:
                 image_src,
                 company,
                 category,
+                subcategory,
                 subcategory,
             ),
         )
