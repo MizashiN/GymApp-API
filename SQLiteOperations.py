@@ -7,7 +7,7 @@ class Operations:
         self.conn = sqlite3.connect("database.db")
         self.cursor = self.conn.cursor()
 
-    def SelectConfigCompany(self):
+    def SelectConfigCompany(self, id_company):
 
         configcompany = {}
 
@@ -22,16 +22,18 @@ class Operations:
                 c.alt_price_parent_class, c.alt_img_tag, c.alt_img_class,
                 c.alt_parent_class_2, c.alt_img_tag_2, c.alt_img_class_2,
                 c.alt_parent_tag_2, c.alt_parent_tag, c.alt_parent_class,
-                c.unv_product_tag, c.unv_product_class
+                c.unv_product_tag, c.unv_product_class, c.page_param
             FROM
                 configcompanies c
             JOIN
                 companies a ON a.id_company = c.id_company
-            """
+            WHERE 
+                c.id_company = ?    
+            """,
+            (id_company,),
         )
 
         config = self.cursor.fetchall()
-
         for i, a in enumerate(self.cursor.description):
             configcompany[a[0]] = [line[i] for line in config]
 
@@ -42,148 +44,28 @@ class Operations:
             configcompany[a[0]] = value_str.replace("['", "'").replace("']", "'")
             configcompany[a[0]] = value_str.replace("None", "")
 
-        id_company = configcompany["id_company"]
+        id_cp = configcompany["id_company"]
 
         url = configcompany["url_base"]
-        dict_catsub = self.SelectCategories(id_company)
-        urls_list = self.BuildUrls(dict_catsub, url)
+        page_param = configcompany["page_param"]
+        dict_catsub = self.SelectCategories(id_cp)
+        urls_list = self.BuildUrls(dict_catsub, url, page_param)
+        print(urls_list)
+        del configcompany["page_param"]
 
         configcompany["url"] = urls_list
 
         return configcompany
 
-    def CheckCompanyExists(self, company):
-        self.cursor.execute(
-            """
-            SELECT id_company FROM companies
-            WHERE company = ?
-            """,
-            (company,),
-        )
-        value = self.cursor.fetchone()
-        if value != None:
-            return value[0]
-        else:
-            return False
-
-    def InsertConfigCompany(
-        self,
-        id_company,
-        parent_tag,
-        title_tag,
-        img_tag,
-        price_tag,
-        url_tag,
-        url_attribute,
-        url_base,
-        url_class,
-        url_test,
-        price_parent_tag,
-        price_parent_class,
-        price_code,
-        price_integer,
-        price_decimal,
-        price_fraction,
-        img_attribute,
-        parent_class,
-        title_class,
-        price_class,
-        img_class,
-        alt_price_parent_tag,
-        alt_price_parent_class,
-        alt_img_tag,
-        alt_img_class,
-        alt_parent_class_2,
-        alt_img_tag_2,
-        alt_img_class_2,
-        alt_parent_tag_2,
-        alt_parent_tag,
-        alt_parent_class,
-    ):
-        # Em seguida, insere os dados na tabela `configcompanies`
-        self.cursor.execute(
-            """
-            INSERT INTO configcompanies
-            (id_company, parent_tag, title_tag, img_tag, price_tag, url_tag, url_attribute,
-            url_base, url_class, url_test, price_parent_tag, price_parent_class, price_code, 
-            price_integer, price_decimal, price_fraction, img_attribute, parent_class, title_class, 
-            price_class, img_class, alt_price_parent_tag, alt_price_parent_class, alt_img_tag, 
-            alt_img_class, alt_parent_class_2, alt_img_tag_2, alt_img_class_2, alt_parent_tag_2, 
-            alt_parent_tag, alt_parent_class)
-            VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                id_company,
-                parent_tag,
-                title_tag,
-                img_tag,
-                price_tag,
-                url_tag,
-                url_attribute,
-                url_base,
-                url_class,
-                url_test,
-                price_parent_tag,
-                price_parent_class,
-                price_code,
-                price_integer,
-                price_decimal,
-                price_fraction,
-                img_attribute,
-                parent_class,
-                title_class,
-                price_class,
-                img_class,
-                alt_price_parent_tag,
-                alt_price_parent_class,
-                alt_img_tag,
-                alt_img_class,
-                alt_parent_class_2,
-                alt_img_tag_2,
-                alt_img_class_2,
-                alt_parent_tag_2,
-                alt_parent_tag,
-                alt_parent_class,
-            ),
-        )
-        self.conn.commit()
-
-    def CheckUrlExists(self, url):
-        self.cursor.execute(
-            "SELECT url FROM urlssearch WHERE url = ?",
-            (url,),
-        )
-        check = self.cursor.fetchall()
-        if check == []:
-            return False
-        else:
-            return True
-
-    def VerifyConfigExists(self, parent_tag):
-        check = False
-        self.cursor.execute(
-            """
-            SELECT id_company FROM configcompanies WHERE parent_tag = ?
-            """,
-            (parent_tag,),
-        )
-
-        value = self.cursor.fetchone()
-
-        if value:
-            check = True
-
-        return check
-
-    def BuildUrls(self, dict_urls, url_base):
+    def BuildUrls(self, dict_urls, url_base, page_param):
         url_list = []
         for a in dict_urls.keys():
             values = dict_urls[a]
             if values != []:
                 for b in values:
-                    url = url_base + "/" + a + "/" + b
+                    url = url_base + "/" + a + "/" + b + page_param
             else:
-                url = url_base + a
+                url = url_base + "/" + a + page_param
             url_list.append(url)
         return url_list
 
@@ -202,6 +84,17 @@ class Operations:
             dict_urls[c[1]] = subcat
         return dict_urls
 
+    def SelectCompanies(self):
+        self.cursor.execute(
+            """
+            SELECT id_company FROM companies
+            """
+        )
+
+        result = self.cursor.fetchall()
+        companies = [s[0] for s in result]
+        return companies
+
     def SelectCompanyCategories(self, id_company):
         self.cursor.execute(
             """
@@ -218,7 +111,7 @@ class Operations:
         self.cursor.execute(
             """
             SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category =
-            (SELECT id_category FROM categoryparam WHERE companyparam = ?)
+            (SELECT id_category FROM categoryparams WHERE companyparam = ?)
             """,
             (
                 id_company,
@@ -230,43 +123,21 @@ class Operations:
         subcategories = [s[0] for s in result]
         return subcategories
 
-    def SelectCompanySubCategories(self, id_company):
+    def SelectTitleSubCategories(self, id_company, companyparam):
         self.cursor.execute(
             """
-            SELECT companyparam FROM subcategorytitleparams WHERE id_company = ?
+            SELECT companyparam FROM subcategorytitleparams WHERE id_company = ? AND id_category =
+            (SELECT id_category FROM categoryparams WHERE companyparam = ?)
             """,
-            (id_company,),
+            (
+                id_company,
+                companyparam,
+            ),
         )
 
         result = self.cursor.fetchall()
         subcategories = [s[0] for s in result]
         return subcategories
-
-    def SearchUrlBases(self, id_company):
-        self.cursor.execute(
-            "SELECT urlbase FROM urlbases WHERE id_company = ?",
-            (id_company,),
-        )
-        urls = self.cursor.fetchall()
-        url = [u[0] for u in urls]
-
-        return url[0]
-
-    def verify_images(self, src_list):
-        self.list = src_list.copy()
-        images_to_remove = []
-
-        for image_src in src_list:
-            self.cursor.execute(
-                "SELECT image_src FROM images WHERE image_src = ?", (image_src,)
-            )
-            result = self.cursor.fetchone()
-            if result:
-                images_to_remove.append(image_src)
-
-        for image in images_to_remove:
-            self.list.remove(image)
-        return self.list
 
     def SelectProduct(self, image_src):
         product_b = []

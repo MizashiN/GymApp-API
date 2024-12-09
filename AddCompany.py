@@ -17,6 +17,7 @@ class ProductData:
     category: str
     subcategory: str = None
 
+
 class default:
     def __init__(self):
         self.operation = Operations()
@@ -40,7 +41,6 @@ class ProductScrapper(default):
         company,
         unv_product_tag,
         unv_product_class,
-        url_test="",
         url_tag="",
         url_attribute="",
         url_base="",
@@ -122,6 +122,7 @@ class ProductScrapper(default):
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
+                    print(price)
                 image = product_info.find(img_tag, class_=img_class)
 
                 if not image:
@@ -145,11 +146,10 @@ class ProductScrapper(default):
                 if title and image and link_product and (price or price_list):
                     title_text = title.get_text(strip=True)
                     if price:
+                        price_text = price.get_Text(strip=True)
                         price_text = (
-                            price.get_text(strip=True)
-                            .replace("\u00a0", "")
+                            price_text.replace("\u00a0", " ")
                             .replace("R$", "R$ ")
-                            .replace("R$  ", "R$ ")
                             .strip()
                         )
 
@@ -158,6 +158,7 @@ class ProductScrapper(default):
                             r"\1",
                             price_text,
                         ).strip()
+
                     if price_list:
                         price_text = "".join(price_list).replace("R$", "R$ ")
 
@@ -177,14 +178,26 @@ class ProductScrapper(default):
                         cat = u.find(a)
                         if cat != -1:
                             category_name = a
-                            self.subcategories = self.operation.SelectCompanySubCategories(id_company, a)
+                            self.subcategories = self.operation.SelectSubCategories(
+                                id_company, a
+                            )
+
+                            if self.subcategories == []:
+                                self.subcategories = (
+                                    self.operation.SelectTitleSubCategories(
+                                        id_company, a
+                                    )
+                                )
+
                             break
 
                     title_lower = title_text.lower()
+                    subcategory_name = None
                     for b in self.subcategories:
-                        subcat = title_lower.find(b)
+                        b_lower = b.lower()
+                        subcat = title_lower.find(b_lower)
                         if subcat != -1:
-                            subcategory_name = b
+                            subcategory_name = b_lower
                             break
                         else:
                             subcategory_name = ""
@@ -195,14 +208,6 @@ class ProductScrapper(default):
                         and url_product
                         and category_name
                     ):
-
-                        list_product = []
-                        list_product = [
-                            title_text,
-                            price_text,
-                            image_src,
-                            url_product,
-                        ]
 
                         self.product_list.append(
                             ProductData(
@@ -227,7 +232,7 @@ class ProductScrapper(default):
         for u in url:
             self.url_break = False
             for i in range(1, 100):
-                urlPage = f"{u}{pageparam}{i}"
+                urlPage = f"{u}{i}"
                 res = requests.get(urlPage, headers=headers)
                 print(urlPage)
                 print(f"Status Code: {res.status_code}")
@@ -274,7 +279,7 @@ class ProductScrapper(default):
                 product_r.category,
                 product_r.subcategory,
             )
-
+            print(price_r)
             price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
 
             product_b = self.operation.SelectProduct(image_src_r)
@@ -284,13 +289,19 @@ class ProductScrapper(default):
                 product = product_b[0]
                 if product[0] != title_r:
                     self.operation.UpdateProduct("title_product", title_r, product[3])
-                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no nome\033[0m")
+                    print(
+                        f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no nome\033[0m"
+                    )
                 if product[1] != price_r:
                     self.operation.UpdateProduct("price_product", price_r, product[3])
-                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no preço\033[0m")
+                    print(
+                        f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no preço\033[0m"
+                    )
                 if product[2] != url_r:
                     self.operation.UpdateProduct("url_product", url_r, product[3])
-                    print(f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança na url\033[0m")
+                    print(
+                        f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança na url\033[0m"
+                    )
             else:
                 image_blob_r = self.funcs.download_image(image_src_r)
                 self.operation.InsertProduct(
@@ -307,7 +318,9 @@ class ProductScrapper(default):
 
 
 run = ProductScrapper()
-configDB = Operations()
+Op = Operations()
+companies_list = Op.SelectCompanies()
 
-product_config = configDB.SelectConfigCompany()
-run.fetch_product(**product_config)
+for i in companies_list:
+    product_config = Op.SelectConfigCompany(id_company=i)
+    run.fetch_product(**product_config)
