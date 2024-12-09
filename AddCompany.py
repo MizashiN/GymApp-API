@@ -296,17 +296,17 @@ class ProductScrapper(default):
                 print(f"Produto \033[1;37m{title_r}\033[33m existe no banco")
                 product = product_b[0]
                 if product[0] != title_r:
-                    self.operation.UpdateProduct("title_product", title_r, product[3])
+                    self.operation.UpdateProduct("title_product", title_r, product[4])
                     print(
                         f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no nome\033[0m"
                     )
                 if product[1] != price_r:
-                    self.operation.UpdateProduct("price_product", price_r, product[3])
+                    self.operation.UpdateProduct("price_product", price_r, product[4])
                     print(
                         f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança no preço\033[0m"
                     )
                 if product[2] != url_r:
-                    self.operation.UpdateProduct("url_product", url_r, product[3])
+                    self.operation.UpdateProduct("url_product", url_r, product[4])
                     print(
                         f"Produto \033[1;37m{title_r}\033[0m \033[33mhouve mudança na url\033[0m"
                     )
