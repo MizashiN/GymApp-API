@@ -72,7 +72,6 @@ class ProductScrapper(default):
         def extract_product_data(soup, parent_tag, parent_class):
             product_items = soup.find_all(parent_tag, class_=parent_class)
             if not product_items:
-                print("Não achou product items então acabou a url")
                 self.url_break = True
                 return
             for idx, product_info in enumerate(product_items):
@@ -246,7 +245,6 @@ class ProductScrapper(default):
             for i in range(1, 100):
                 urlPage = f"{u}{i}"
                 res = requests.get(urlPage, headers=headers)
-                print(f"Status Code: {res.status_code}")
 
                 if res.status_code != 200:
                     print(
@@ -295,7 +293,7 @@ class ProductScrapper(default):
             product_b = self.operation.SelectProduct(image_src_r)
 
             if product_b:
-                print(f"Produto \033[1;37m{title_r}\033[0m existe no banco")
+                print(f"Produto \033[1;37m{title_r}\033[33m existe no banco")
                 product = product_b[0]
                 if product[0] != title_r:
                     self.operation.UpdateProduct("title_product", title_r, product[3])
