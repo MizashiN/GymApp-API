@@ -66,6 +66,7 @@ class ProductScrapper(default):
         alt_parent_tag_2="",
         alt_parent_tag="",
         alt_parent_class="",
+        perc_pix="",
     ):
         self.product_list = []
 
@@ -82,7 +83,6 @@ class ProductScrapper(default):
                 )
 
                 if unv_product:
-                    print(unv_product)
                     self.url_break = True
                     return
 
@@ -122,7 +122,7 @@ class ProductScrapper(default):
 
                 else:
                     price = product_info.find(price_tag, class_=price_class)
-                    print(price)
+
                 image = product_info.find(img_tag, class_=img_class)
 
                 if not image:
@@ -147,6 +147,7 @@ class ProductScrapper(default):
                     title_text = title.get_text(strip=True)
                     if price:
                         price_text = price.get_Text(strip=True)
+
                         price_text = (
                             price_text.replace("\u00a0", " ")
                             .replace("R$", "R$ ")
@@ -161,6 +162,20 @@ class ProductScrapper(default):
 
                     if price_list:
                         price_text = "".join(price_list).replace("R$", "R$ ")
+                    if perc_pix:
+                        price_text = (
+                            price_text.replace("\u00a0", " ")
+                            .replace("R$", "")
+                            .replace(".", "")
+                            .replace(",", ".")
+                            .strip()
+                        )
+
+                        price_base = float(price_text)
+                        pix = int(perc_pix)
+                        price_calc = price_base * (1 - pix / 100)
+                        discount_price = "{:.2f}".format(price_calc)
+                        price_text = str(discount_price).replace(".", ",")
 
                     url_product = link_product.get(url_attribute)
 
@@ -279,7 +294,6 @@ class ProductScrapper(default):
                 product_r.category,
                 product_r.subcategory,
             )
-            print(price_r)
             price_r = float(price_r.replace("R$", "").strip().replace(",", "."))
 
             product_b = self.operation.SelectProduct(image_src_r)
