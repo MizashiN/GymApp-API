@@ -216,4 +216,3 @@ class Operations:
             self.cursor.close()
         if self.conn:
             self.conn.close()
-
