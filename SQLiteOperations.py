@@ -23,7 +23,7 @@ class Operations:
                 c.alt_parent_class_2, c.alt_img_tag_2, c.alt_img_class_2,
                 c.alt_parent_tag_2, c.alt_parent_tag, c.alt_parent_class,
                 c.unv_product_tag, c.unv_product_class, c.page_param,
-                c.perc_pix
+                c.perc_pix, c.grid_tag, c.grid_class
             FROM
                 configcompanies c
             JOIN
@@ -51,11 +51,9 @@ class Operations:
         page_param = configcompany["page_param"]
         dict_catsub = self.SelectCategories(id_cp)
         urls_list = self.BuildUrls(dict_catsub, url, page_param)
-        print(urls_list)
         del configcompany["page_param"]
 
         configcompany["url"] = urls_list
-
         return configcompany
 
     def BuildUrls(self, dict_urls, url_base, page_param):
@@ -65,9 +63,11 @@ class Operations:
             if values != []:
                 for b in values:
                     url = url_base + "/" + a + "/" + b + page_param
+                    url_list.append(url)
             else:
                 url = url_base + "/" + a + page_param
-            url_list.append(url)
+                url_list.append(url)
+
         return url_list
 
     def SelectCategories(self, id_company):
@@ -108,15 +108,14 @@ class Operations:
         categories = [s[0] for s in result]
         return categories
 
-    def SelectSubCategories(self, id_company, companyparam):
+    def SelectSubCategories(self, id_company, id_category):
         self.cursor.execute(
             """
-            SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category =
-            (SELECT id_category FROM categoryparams WHERE companyparam = ?)
+            SELECT companyparam FROM subcategoryparams WHERE id_company = ? AND id_category = (SELECT id_category FROM categoryparams WHERE companyparam = ?)
             """,
             (
                 id_company,
-                companyparam,
+                id_category,
             ),
         )
 

@@ -66,11 +66,21 @@ class ProductScrapper(default):
         alt_parent_tag="",
         alt_parent_class="",
         perc_pix="",
+        grid_tag="",
+        grid_class="",
     ):
         self.product_list = []
 
         def extract_product_data(soup, parent_tag, parent_class):
+            if grid_tag and grid_class:
+                product_grid = soup.find(grid_tag, class_=grid_class)
+                if not product_grid:
+                    self.url_break = True
+                    return
+                product_items = product_grid.find_all(parent_tag, class_=parent_class)
+
             product_items = soup.find_all(parent_tag, class_=parent_class)
+
             if not product_items:
                 self.url_break = True
                 return
@@ -144,11 +154,11 @@ class ProductScrapper(default):
                 if title and image and link_product and (price or price_list):
                     title_text = title.get_text(strip=True)
                     if price:
-                        price_text = price.get_Text(strip=True)
-
                         price_text = (
-                            price_text.replace("\u00a0", " ")
+                            price.get_text(strip=True)
+                            .replace("\u00a0", "")
                             .replace("R$", "R$ ")
+                            .replace("R$  ", "R$ ")
                             .strip()
                         )
 
@@ -186,32 +196,38 @@ class ProductScrapper(default):
                     image_src = image.get(img_attribute).split(",")[0].split(" ")[0]
                     if not image_src.startswith("https:"):
                         image_src = "https:" + image_src
-
                     for a in self.categories:
                         cat = u.find(a)
                         if cat != -1:
                             category_name = a
-                            self.subcategories = self.operation.SelectSubCategories(
+                            self.subcategories_url = self.operation.SelectSubCategories(
                                 id_company, a
                             )
-
-                            if self.subcategories == []:
-                                self.subcategories = (
+                            if self.subcategories_url == []:
+                                self.subcategories_title = (
                                     self.operation.SelectTitleSubCategories(
                                         id_company, a
                                     )
                                 )
-
                             break
 
                     subcategory_name = None
-                    for b in self.subcategories:
-                        subcat = title_text.find(b)
-                        if subcat != -1:
-                            subcategory_name = b
-                            break
+                    if self.subcategories_url:
+                        for b in self.subcategories_url:
+                            subcat = u.find(b)
+                            if subcat != -1:
+                                subcategory_name = b
+                                break
+                            else:
+                                subcategory_name = ""
                         else:
-                            subcategory_name = ""
+                            for b in self.subcategories_title:
+                                subcat = title_text.find(b)
+                                if subcat != -1:
+                                    subcategory_name = b
+                                    break
+                                else:
+                                    subcategory_name = ""
                     if (
                         title_text
                         and price_text
@@ -231,6 +247,7 @@ class ProductScrapper(default):
                                 subcategory=subcategory_name,
                             )
                         )
+                        print(f"{title_text}: Scrapping com Sucesso")
                     else:
                         print("está faltando alguma condição")
 
@@ -239,13 +256,13 @@ class ProductScrapper(default):
         }
 
         self.categories = self.operation.SelectCompanyCategories(id_company)
-
         for u in url:
             self.url_break = False
             for i in range(1, 100):
                 urlPage = f"{u}{i}"
+                print(urlPage)
                 res = requests.get(urlPage, headers=headers)
-
+                print(res.status_code)
                 if res.status_code != 200:
                     print(
                         f"Failed to fetch URL: {u} with status code {res.status_code}"
