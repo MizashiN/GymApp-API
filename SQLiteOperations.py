@@ -67,7 +67,6 @@ class Operations:
             else:
                 url = url_base + "/" + a + page_param
                 url_list.append(url)
-
         return url_list
 
     def SelectCategories(self, id_company):
@@ -81,7 +80,7 @@ class Operations:
 
         result = self.cursor.fetchall()
         for c in result:
-            subcat = self.SelectSubCategories(id_company, c[0])
+            subcat = self.SelectSubCategories(id_company, c[1])
             dict_urls[c[1]] = subcat
         return dict_urls
 
